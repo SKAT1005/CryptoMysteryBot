@@ -10,6 +10,8 @@ class User(models.Model):
     wallet = models.OneToOneField('Wallet', auto_created=True, on_delete=models.CASCADE, verbose_name='Кошелек пользователя')
     referal_id = models.CharField(max_length=32, blank=True, null=True,
                                   verbose_name='ID реферала')
+    personal_chat_id = models.CharField(max_length=64, blank=True, null=True, verbose_name='ID персонального чата')
+    locale = models.CharField(max_length=32, default='RU', verbose_name='Локализация')
     text = models.TextField(blank=True, null=True,verbose_name='Текст отзыва')
     rate = models.IntegerField(default=1, verbose_name='Оценка отзыва')
     last_value = models.CharField(max_length=256, blank=True, null=True, verbose_name='Значение прошлой сделки')
@@ -69,7 +71,7 @@ class Review(models.Model):
 
 class History(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='usr', verbose_name='Чья история')
-    type = models.CharField(max_length=128, verbose_name='Тип операции')
+    type = models.CharField(max_length=32, verbose_name='Тип операции')
     send_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='Сколько валюты отправляет')
     send_cripto = models.CharField(max_length=128, blank=True, verbose_name='Какую криптовалюту отправляете')
     get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, verbose_name='Сколько валюты получаете')

@@ -109,7 +109,7 @@ def menu_buttons(chat_id):
 def wallet_buttons():
     markup = types.InlineKeyboardMarkup(row_width=2)
     conclusion = types.InlineKeyboardButton(text='Вывести 📤', callback_data='conclusion')
-    change_and_buy = types.InlineKeyboardButton(text='Пополнить 📥', callback_data='change|menu')
+    change_and_buy = types.InlineKeyboardButton(text='Пополнить 📥', callback_data='replenishment')
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
     send_to_user = types.InlineKeyboardButton(text='💸 Перевод пользователю Crypto Mystery', callback_data='send_to_user')
     markup.add(change_and_buy, conclusion)

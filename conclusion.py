@@ -6,6 +6,7 @@ from telebot import types
 
 import buttons
 from const import bot
+from change_and_buy import get_number
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoMysteryBot.settings')
 django.setup()
@@ -15,13 +16,15 @@ from app.models import User, AdminMessage, History
 
 def delite_for_admins(id):
     """Удаление всех сообщений админам"""
-    admin_messages = AdminMessage.objects.get(id=id)
-    for message_id in admin_messages.messages_id.split(','):
-        try:
-            bot.delete_message(chat_id=admin_messages.chat_id, message_id=message_id)
-        except Exception:
-            pass
-    admin_messages.delete()
+    admin_messages = AdminMessage.objects.filter(id=id)
+    if admin_messages:
+        for message_id in admin_messages[0].messages_id.split(','):
+            chat_id, msg_id = message_id.split()
+            try:
+                bot.delete_message(chat_id=chat_id, message_id=msg_id)
+            except Exception:
+                pass
+        admin_messages[0].delete()
 
 def history(type, send_value, send_cripto, user_id, wallet):
     user = User.objects.get(chat_id=user_id)
@@ -37,7 +40,8 @@ def approve_conclusion(data):
     user = User.objects.get(chat_id=data[2])
     delite_for_admins(id=id)
     user.wallet.delite_cripto(cripto=cripto, value=user.send_cripto)
-    bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {user.send_cripto} {cripto} одобрена!')
+    number_str = get_number(user.send_cripto)
+    bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} одобрена!')
     history(type='Вывод', send_value=user.send_cripto, send_cripto=cripto, wallet=data[-1])
     user.send_cripto = 0
     user.save()
@@ -48,7 +52,8 @@ def cansel_conclusion(data):
     id = data[1]
     user = User.objects.get(chat_id=data[2])
     delite_for_admins(id=id)
-    bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {user.send_cripto} {cripto} отклонена!')
+    number_str = get_number(user.send_cripto)
+    bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} отклонена!')
     user.send_cripto = 0
     user.save()
 
@@ -60,9 +65,10 @@ def send_to_admin(chat_id, data, user):
     admin_message = AdminMessage.objects.create(chat_id=chat_id)
     admins = User.objects.filter(is_admin=True)
     markup = buttons.admins_button(cripto=cripto, user_id=chat_id, id=admin_message.id, wallet=wallet)
+    number_str = get_number(value)
     text = 'ВЫВОД СРЕДСТВ:\n' \
            f'Пользователь: {user.chat_id}\n' \
-           f'Выводит: *{value}* {cripto}\n' \
+           f'Выводит: *{number_str}* {cripto}\n' \
            f'Номер кошелек\карта: `{wallet}`\n\n' \
            f'БАЛАННС ПОЛЬЗОВАТЕЛЯ:\n' + user.wallet.wallet_balance()
     messages_id = ''
@@ -82,8 +88,9 @@ def validate_user_wallet_input(message, chat_id, cripto, value, user, message_id
         bot.delete_message(chat_id=chat_id, message_id=message_id)
     except Exception:
         pass
+    number_str = get_number(value)
     text = 'ИНФОРМАЦИЯ О ВЫВОДЕ:\n' \
-           f'Вы выводите: {value} {cripto}\n' \
+           f'Вы выводите: {number_str} {cripto}\n' \
            f'Номер кошелька\карты для вывода: {message.text}'
     bot.send_message(chat_id=chat_id, text=text,
                      reply_markup=buttons.conclusion_button(cripto=cripto, value=value, wallet=message.text))

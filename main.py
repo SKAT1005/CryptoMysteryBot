@@ -2,6 +2,7 @@ import os
 
 import django
 import requests
+from telebot import types
 
 import analytics
 import buttons
@@ -11,6 +12,7 @@ import review
 import send_to_user
 from const import bot
 import change_and_buy
+import replenishment
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoMysteryBot.settings')
 django.setup()
@@ -22,10 +24,25 @@ def menu(chat_id):
     text = '👋🧿 - Добро пожаловать. Чем я могу Вам помочь?'
     bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.menu_buttons(chat_id))
 
+def send_start_message_to_admin(username, chat_id):
+    admins = User.objects.filter(is_admin=True)
+    markup = types.InlineKeyboardMarkup()
+    if username:
+        user = types.InlineKeyboardButton(text=username, url=f'tg://user?id={chat_id}')
+    else:
+        user = types.InlineKeyboardButton(text=chat_id, url=f'tg://user?id={chat_id}')
+    markup.add(user)
+    for admin in admins:
+        if username:
+            bot.send_message(chat_id=admin.chat_id, text=f'Произведен старт пользователем @{username}', reply_markup=markup)
+        else:
+            bot.send_message(chat_id=admin.chat_id, text=f'Произведен старт пользователем id: {chat_id}', reply_markup=markup)
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    username = message.from_user.username
     chat_id = message.chat.id
+    send_start_message_to_admin(username, chat_id)
     if not User.objects.filter(chat_id=chat_id):
         wallte = Wallet.objects.create()
         user, _ = User.objects.create(chat_id=chat_id, wallet=wallte), True
@@ -35,6 +52,10 @@ def start(message):
         ref_id = message.text.split()
         if len(ref_id) > 1 and User.objects.filter(chat_id=ref_id[1]) and ref_id[1] != str(chat_id):
             user.referal_id = ref_id[1]
+            text = 'У вас новый реферал'
+            if username:
+                text += f': @{username}'
+            bot.send_message(chat_id=chat_id)
             user.save()
     menu(chat_id=chat_id)
 
@@ -75,11 +96,9 @@ def callback(call):
         except Exception:
             pass
         if data[0] == 'menu':
-            user.send_cripto = 0
             user.last_value = ''
             user.text = ''
             user.rate = 1
-            user.get_cripto = 0
             user.save()
             menu(chat_id=chat_id)
 
@@ -99,6 +118,8 @@ def callback(call):
             history.history(user)
         elif data[0] == 'analytics':
             analytics.analytics(chat_id, user)
+        elif data[0] == 'replenishment':
+            replenishment.callback(data=data[1:], user=user, chat_id=chat_id)
         else:
             menu(chat_id=chat_id)
 
