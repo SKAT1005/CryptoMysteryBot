@@ -16,7 +16,7 @@ headers = {
     "Authorization": f"Bearer {API_KEY}",
     "Content-Type": "application/json"
 }
-proxy = "http://sbhoqmie:74kcgxgaf0do@38.154.227.167:5868"
+proxy = "http://sbhoqmie:74kcgxgaf0do@45.94.47.66"
 url = "https://api.openai.com/v1/chat/completions"
 timeout = httpx.Timeout(timeout=100.0)
 proxy_client = httpx.Client(proxies=proxy, timeout=timeout)

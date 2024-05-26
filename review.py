@@ -25,6 +25,7 @@ def send_review_to_admin(user_id, user):
            f'Сумма операции: {review.value}\n' \
            f'Текст операции: {review.text}'
     messages_id = ''
+    bot.send_message(chat_id=user_id, text='🧿👍 - Ваш отзыв будет опубликован в ближайшее время.', reply_markup=buttons.go_to_menu())
     for admin in admins:
         try:
             msg = bot.send_message(chat_id=admin.chat_id, text=text, reply_markup=markup)
@@ -70,7 +71,8 @@ def approve(user_id, review_id, msg_id):
     user.wallet.buy('USDT', 1)
     rate = '🌟'*review.rate
     bot.send_message(chat_id=user_id, text='Ваш отзыв одобрен!')
-    text = f"Сумма операции: {review.value}\n\n" \
+    text = f"👨‍🎨 Автор: {user.username}\n" \
+           f"💶 Сумма операции: : {review.value}\n" \
            f"Оценка: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"

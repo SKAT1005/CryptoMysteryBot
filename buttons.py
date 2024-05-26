@@ -34,13 +34,15 @@ def review():
 
 def admins_button(id, cripto, user_id, wallet=False):
     markup = types.InlineKeyboardMarkup(row_width=1)
+    ind = user_id
     if wallet:
         user_id = f"{user_id}|{wallet}"
     approve = types.InlineKeyboardButton(text='✅Одобрить вывод',
                                          callback_data=f'conclusion|approve|{cripto}|{id}|{user_id}')
     cansel = types.InlineKeyboardButton(text='❌ Отменить вывод',
                                         callback_data=f'conclusion|cansel|{cripto}|{id}|{user_id}')
-    markup.add(approve, cansel)
+    view_user = types.InlineKeyboardButton('Посмотерь аккаунт пользователя', url=f'tg://user?id={ind}')
+    markup.add(approve, cansel, view_user)
     return markup
 
 
@@ -59,6 +61,17 @@ def send_to_user_button(cripto, user_id):
     markup.add(approve, cansel)
     return markup
 
+def cource(value='RUB'):
+    markup = types.InlineKeyboardMarkup()
+    if value == 'RUB':
+        n = 'USD'
+    else:
+        n = 'RUB'
+    menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
+    update = types.InlineKeyboardButton(text='🔄 Обновить', callback_data=f'course|{value}')
+    change_value = types.InlineKeyboardButton(text='Сменить валюту', callback_data=f'course|{n}')
+    markup.add(menu)
+
 
 def choose_cripto(param):
     markup = types.InlineKeyboardMarkup(row_width=4)
@@ -69,12 +82,18 @@ def choose_cripto(param):
     trx = types.InlineKeyboardButton(text='TRX', callback_data=f'{param}|TRX')
     ton = types.InlineKeyboardButton(text='TON', callback_data=f'{param}|TON')
     xmr = types.InlineKeyboardButton(text='XMR', callback_data=f'{param}|XMR')
-    back = types.InlineKeyboardButton(text='BACK', callback_data=f'menu')
+    back = types.InlineKeyboardButton(text='BACK', callback_data=f'my_wallet')
     markup.add(rub, btc, eth, usdt, trx, ton, xmr)
     markup.add(back)
     return markup
 
-
+def conclusion(currens):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
+    back = types.InlineKeyboardButton(text='Назад', callback_data='conclusion')
+    fix_all = types.InlineKeyboardButton(text='Вывести все', callback_data=f'conclusion|{currens}|all')
+    markup.add(fix_all, back, menu)
+    return markup
 def go_to_menu():
     markup = types.InlineKeyboardMarkup()
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
@@ -102,17 +121,35 @@ def menu_buttons(chat_id):
     markup.add(referal)
     markup.add(newspaper)
     markup.add(reviews, course)
-    markup.add(history, analytics)
+    markup.add(history)
     return markup
 
+def ref(chat_id):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    referal_text = 'Приглашаю тебя в бот 🧿 Crypto Mystery!\n\n' \
+                   '🧿 Crypto Mystery это:\n\n' \
+                   '🔄 Купля/Продажа BTC, ETH, XMR, USDT, TRX, TON\n\n' \
+                   'Стать пользователем 🧿 Crypto Mystery можно по ссылке ниже.\n\n' \
+                   f'https://t.me/cryptohuibot?start={chat_id}'
+    referal = types.InlineKeyboardButton(text='🤝 Отправить реферальную ссылку', switch_inline_query=referal_text)
+    menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
+    markup.add(referal, menu)
+def commissions():
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    my_wallet = types.InlineKeyboardButton(text='💳 Ваш кошелек Crypto Mystery', callback_data='my_wallet')
+    menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
+    markup.add(my_wallet, menu)
+    return markup
 
 def wallet_buttons():
     markup = types.InlineKeyboardMarkup(row_width=2)
     conclusion = types.InlineKeyboardButton(text='Вывести 📤', callback_data='conclusion')
-    change_and_buy = types.InlineKeyboardButton(text='Пополнить 📥', callback_data='change|menu')
+    change_and_buy = types.InlineKeyboardButton(text='Пополнить 📥', callback_data='replenishment')
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
     send_to_user = types.InlineKeyboardButton(text='💸 Перевод пользователю Crypto Mystery', callback_data='send_to_user')
+    commissions = types.InlineKeyboardButton(text='Комиссии на вывод', callback_data='commissions')
     markup.add(change_and_buy, conclusion)
     markup.add(send_to_user)
+    markup.add(commissions)
     markup.add(menu)
     return markup
