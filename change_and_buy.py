@@ -16,24 +16,24 @@ from app.models import User, AdminMessage, History
 
 payment = {
     'RUB': {
-        'sber': "Сбербанк:\n"
-                "`2202 2018 2009 8511`\n"
-                "Ярослав Олегович К",
-        'tink': "*Тинькофф*\n"
-                "`000000000000000`\n"
-                "Ярослав Олегович К",
-        'city': "*Сити*\n"
-                "`5318 0949 3544 4413`\n"
-                "Ярослав Олегович К",
-        'gpb': "*ГПБ*\n"
-               "`2200 0117 0356 0327`\n"
-               "Ярослав Олегович К",
-        'psb': "*ПСБ*\n"
-               "`5586 7260 9690 8489`\n"
-               "Ярослав Олегович К",
-        'alpha': "*Альфа банк*\n"
-                 "`2200 1532 4224 4574`\n"
-                 "Ярослав Олегович К",
+        'sber': "🏦 Банк: Сбербанк:\n"
+                "💳 Номер карты: `2202 2018 2009 8511`\n"
+                "👤 Инициалы: *Ярослав Олегович К*",
+        'tink': "🏦 Банк: *Тинькофф*\n"
+                "💳 Номер карты: `000000000000000`\n"
+                "👤 Инициалы: *Ярослав Олегович К*",
+        'city': "🏦 Банк: *Сити*\n"
+                "💳 Номер карты: `5318 0949 3544 4413`\n"
+                "👤 Инициалы: *Ярослав Олегович К*",
+        'gpb': "🏦 Банк: *ГПБ*\n"
+               "💳 Номер карты: `2200 0117 0356 0327`\n"
+               "👤 Инициалы: *Ярослав Олегович К*",
+        'psb': "🏦 Банк: *ПСБ*\n"
+               "💳 Номер карты: `5586 7260 9690 8489`\n"
+               "👤 Инициалы: *Ярослав Олегович К*",
+        'alpha': "🏦 Банк: *Альфа банк*\n"
+                 "💳 Номер карты: `2200 1532 4224 4574`\n"
+                 "👤 Инициалы: *Ярослав Олегович К*",
     },
 
     'USDT': {
@@ -42,11 +42,11 @@ payment = {
         "BEP20": "`0xAF440D7449C33E2CE778498D89261EaD9aa15636`\n",
         "SPL": "`7KT9Tr8TgrUAeGthWznmxTfVpnhZdyVCfJUmEPGyxq4q`\n",
     },
-    'ETH': '\n `0xAF440D7449C33E2CE778498D89261EaD9aa15636`',
-    'BTC': '\n`bc1qctuy4vkdrfs63w6dth0qmnpplqpa8nrkaj65zp`',
-    'XMR': '\n`43UdM7hT3TXHhG7rtceut6KYso8VCeMxiB87doc9AVuG9Gm1jDa1XpmcXM8tF2VxxdFU6VZsHnZX7fHvaH8bBfejP2tL9GS`',
-    'TON': '\n`EQAwPATVIhHQrpMkGkAaLHvVanhhoF80HRkqGELD4-jENteG`',
-    'TRX': '\n`TGnUndFN5BDhjesFVTjFKWFojWVfg5CiZa`'
+    'ETH': '`0xAF440D7449C33E2CE778498D89261EaD9aa15636`',
+    'BTC': '`bc1qctuy4vkdrfs63w6dth0qmnpplqpa8nrkaj65zp`',
+    'XMR': '`43UdM7hT3TXHhG7rtceut6KYso8VCeMxiB87doc9AVuG9Gm1jDa1XpmcXM8tF2VxxdFU6VZsHnZX7fHvaH8bBfejP2tL9GS`',
+    'TON': '`EQAwPATVIhHQrpMkGkAaLHvVanhhoF80HRkqGELD4-jENteG`',
+    'TRX': '`TGnUndFN5BDhjesFVTjFKWFojWVfg5CiZa`'
 
 }
 def history(type, send_value, send_cripto, get_value, get_cripto, user_id):
@@ -80,13 +80,14 @@ def send_message_to_admin(data, chat_id):
     get_cur = data[2]  # Валюта, которую получаем
     admins = User.objects.filter(is_admin=True)
     user = User.objects.get(chat_id=chat_id)
-    send_value = user.send_cripto
-    get_value = user.get_cripto
+    send_value = get_number(user.send_cripto)
+    get_value = get_number(user.get_cripto)
     if data[0] == 'confirm':
         text = "ВНУТРЕННИЙ ОБМЕН\n\n" + \
                f"Отдает {send_value} - {send_cur} \n\n" + \
                f"Получает{get_value} - {get_cur}\n\n" + user.wallet.wallet_balance()
     else:
+        bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
         text = 'ВНЕШНИЙ ОБМЕН\n\n' \
                f'Отдает: {send_value} - {send_cur}\n' \
                f'Получает: {get_value} - {get_cur}\n'
@@ -105,7 +106,8 @@ def check_referal(user, cripto, value):
         referal = User.objects.get(chat_id=user.referal_id)
         referal.wallet.buy(cripto, value)
         referal.save()
-        bot.send_message(chat_id=referal.chat_id, text=f'Ваш баланс был пополнен на {value} {cripto}, благодаря вашему рефералу')
+        number_str = get_number(value)
+        bot.send_message(chat_id=referal.chat_id, text=f'Ваш баланс был пополнен на {number_str} {cripto}, благодаря вашему рефералу')
 
 
 def admin_approve(data):
@@ -124,7 +126,8 @@ def admin_approve(data):
     try:
         user.last_value = f'{user.get_cripto} {data[3]}'
         user.save()
-        bot.send_message(chat_id=data[-1], text=f'Ваш счет успешно пополнен на {user.get_cripto} {data[3]}\n'
+        number_str = get_number(user.get_cripto)
+        bot.send_message(chat_id=data[-1], text=f'Ваш счет успешно пополнен на {number_str} {data[3]}\n'
                                                 f'Оставьте отзыв и получите 1 USDT на ваш счет', reply_markup=buttons.review())
     except Exception:
         pass
@@ -135,6 +138,10 @@ def admin_approve(data):
 
 def admin_cansel(data):
     """Если админ отклоняет действие"""
+    user = User.objects.get(id=data[-1])
+    user.get_cripto = 0
+    user.send_cripto = 0
+    user.save()
     try:
         bot.send_message(chat_id=data[-1], text=f'Вам отказано в пополнении счета')
     except Exception:
@@ -143,14 +150,15 @@ def admin_cansel(data):
 
 def delite_for_admins(id):
     """Удаление всех сообщений админам"""
-    admin_messages = AdminMessage.objects.get(id=id)
-    for message_id in admin_messages.messages_id.split(','):
-        chat_id, msg_id = message_id.split()
-        try:
-            bot.delete_message(chat_id=chat_id, message_id=msg_id)
-        except Exception:
-            pass
-    admin_messages.delete()
+    admin_messages = AdminMessage.objects.filter(id=id)
+    if admin_messages:
+        for message_id in admin_messages[0].messages_id.split(','):
+            chat_id, msg_id = message_id.split()
+            try:
+                bot.delete_message(chat_id=chat_id, message_id=msg_id)
+            except Exception:
+                pass
+        admin_messages[0].delete()
 
 
 def get_course(a, b):
@@ -172,8 +180,11 @@ def menu(chat_id):
 
 
 def change1_1(chat_id, data):
+    user = User.objects.get(chat_id=chat_id)
     """Выбор валюты, которую хотят отдать"""
-    text = 'Выберите валюту, которую вы хотите отдать.'
+    text = 'Crypto M wallet\n' \
+           f'ID: {chat_id}\n' \
+           'Баланс вашего кошелька:\n\n' + user.wallet.wallet_balance()
     markup = types.InlineKeyboardMarkup(row_width=4)
     rub = types.InlineKeyboardButton(text='RUB', callback_data=f'change|{data[0]}_2|RUB')
     btc = types.InlineKeyboardButton(text='BTC', callback_data=f'change|{data[0]}_2|BTC')
@@ -262,6 +273,13 @@ def validate(chat_id, a, data):
                 return f'Минимальная сумма обмена 10 USDT. Вы ввели {val} USDT. Введите большую сумму.'
     return False
 
+def get_number(number):
+    number_str = str(number).split('.')
+    formatted_number = " ".join(number_str[0][i:i + 3] for i in range(0, len(number_str[0]), 3))
+    try:
+        return formatted_number+f',{number_str[1]}'
+    except Exception:
+        return formatted_number
 
 def change1_3_input(message, chat_id, data, message_id):
     """Обработка ввода того, сколько валюты хочет получить пользователь"""
@@ -287,12 +305,12 @@ def change1_3_input(message, chat_id, data, message_id):
         if data[0] == 'change1_1_2_2_3':
             if data[-1] == '1':
                 course = get_course(data[1], data[2])
-                get = str(a * course).replace('.', ',')
-                send = str(a).replace('.', ',')
+                get = get_number(a * course)
+                send = get_number(a)
             else:  # отдаем x//3 получаем х
                 course = get_course(data[2], data[1])
-                get = str(a).replace('.', ',')
-                send = str(a * course).replace('.', ',')
+                get = get_number(a)
+                send = get_number(a * course)
             text = f'Вы отдадите {send} {data[1]} и получите {get} {data[2]}'
             cansel = types.InlineKeyboardButton(text='Отменить', callback_data='change|cansel')
             back = types.InlineKeyboardButton(text='Назад',
@@ -303,21 +321,26 @@ def change1_3_input(message, chat_id, data, message_id):
         else:
             if data[-1] == '1':  # отдаем x получаем х//3
                 course = get_course(data[1], data[-2])
-                get = str(a * course).replace('.', ',')
-                send = str(a).replace('.', ',')
+                get = get_number(a * course)
+                send = get_number(a)
                 first = f'Для того, чтобы получить {get} {data[-2]}\n'
             else:  # отдаем x//3 получаем х
                 course = get_course(data[-2], data[1])
-                get = str(a).replace('.', ',')
-                send = str(a * course).replace('.', ',')
+                get = get_number(a)
+                send = get_number(a * course)
                 first = f'Для того, чтобы получить {get} {data[-2]}\n'
             if data[1] in ['USDT', "RUB"]:
                 text = f'{first}' \
-                       f'Отправьте {send} {data[1]} на \n' \
+                       f'Отправьте {send} {data[1]} на \n\n' \
                        f'{payment[data[1]][data[2]]}'
+                if data[1] == 'RUB':
+                    text += f'\n\nПросим обратить внимание на правила работы нашего сервиса:\n' \
+                            f'1\. Перевод может быть осуществлен только с личной карты\.\n' \
+                            f'2\. После совершения перевода перешлите чек в данный чат\.\n' \
+                            f'3\. Совершайте перевод исключительно на указанную сумму для каждых реквизитов из списка ниже\.\n'
             else:
                 text = f'{first}' \
-                       f'Отправьте {send} {data[1]} на \n' \
+                       f'Отправьте {send} {data[1]} на \n\n' \
                        f'{payment[data[1]]}'
             cansel = types.InlineKeyboardButton(text='Отменить', callback_data='change|menu')
             back = types.InlineKeyboardButton(text='Назад',
@@ -325,8 +348,8 @@ def change1_3_input(message, chat_id, data, message_id):
             confirm = types.InlineKeyboardButton(text='Отправил',
                                                  callback_data=f'change|approve|{data[1]}|{data[-2]}')
             markup.add(confirm, cansel, back)
-        user.get_cripto = decimal.Decimal(get.replace(',', '.'))
-        user.send_cripto = decimal.Decimal(send.replace(',', '.'))
+        user.get_cripto = decimal.Decimal(get.replace(',', '.').replace(' ', ''))
+        user.send_cripto = decimal.Decimal(send.replace(',', '.').replace(' ', ''))
         user.save()
         bot.send_message(chat_id, text=text, reply_markup=markup, parse_mode='MarkdownV2')
 
@@ -350,11 +373,11 @@ def change1_31(chat_id, data):
     back = types.InlineKeyboardButton(text='Назад', callback_data=f'change|{data[0][:-2]}|{data[1]}|')
     if data[1] == 'RUB':
         sber = types.InlineKeyboardButton(text='Сбербанк', callback_data=f'change|{data[0]}|{data[1]}|sber')
-        tink = types.InlineKeyboardButton(text='Тинькофф', callback_data=f'change|{data[0]}|{data[1]}|tink')
+        #tink = types.InlineKeyboardButton(text='Тинькофф', callback_data=f'change|{data[0]}|{data[1]}|tink')
         gpb = types.InlineKeyboardButton(text='ГПБ', callback_data=f'change|{data[0]}|{data[1]}|gpb')
         psb = types.InlineKeyboardButton(text='ПСБ', callback_data=f'change|{data[0]}|{data[1]}|psb')
         alpha = types.InlineKeyboardButton(text='Альфа Банк', callback_data=f'change|{data[0]}|{data[1]}|alpha')
-        markup.add(sber, tink, gpb, psb, alpha)
+        markup.add(sber, gpb, psb, alpha)
     else:
         trc20 = types.InlineKeyboardButton(text='TRC20', callback_data=f'change|{data[0]}|{data[1]}|TRC20')
         erc20 = types.InlineKeyboardButton(text='ERC20', callback_data=f'change|{data[0]}|{data[1]}|ERC20')
@@ -367,7 +390,10 @@ def change1_31(chat_id, data):
 
 def change2_1_2_2(chat_id, data):
     """Выбор того, что пользователь хочет ввести(Сколько хочет отдать или сколько хочет получить)"""
-    text = 'Выберите что хотите ввести'
+    user = User.objects.get(chat_id=chat_id)
+    text = 'Crypto M wallet\n' \
+           f'ID: {chat_id}\n' \
+           'Баланс вашего кошелька:\n\n' + user.wallet.wallet_balance()
     markup = types.InlineKeyboardMarkup(row_width=1)
     send_first = f'{data[1]}'
     send_second = f'{data[-1]}'

@@ -4,6 +4,7 @@ import os
 import django
 
 import buttons
+from change_and_buy import get_number
 from const import bot
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoMysteryBot.settings')
 django.setup()
@@ -13,12 +14,20 @@ from app.models import User, History
 
 def history(type, send_value, send_cripto, from_user_id, to_user_id):
     user = User.objects.get(chat_id=from_user_id)
+    to_user = User.objects.get(chat_id=to_user_id)
     History.objects.create(
         user=user,
         type=type,
         send_value=send_value,
         send_cripto=send_cripto,
         address=to_user_id
+    )
+    History.objects.create(
+        user=to_user,
+        type=type,
+        get_value=send_value,
+        get_cripto=send_cripto,
+        address=to_user_id,
     )
 def send_to_user(chat_id, data, user):
     cripto = data[0]
@@ -32,7 +41,8 @@ def send_to_user(chat_id, data, user):
     to_user.wallet.buy(cripto=cripto, value=value)
     to_user.save()
     bot.send_message(chat_id=chat_id, text='Перевод прошел успешно', reply_markup=buttons.go_to_menu())
-    bot.send_message(chat_id=to_user.chat_id, text=f'Вам отправили {value} {cripto}')
+    number_str = get_number(value)
+    bot.send_message(chat_id=to_user.chat_id, text=f'Вам отправили {number_str} {cripto}')
 
 
 
@@ -44,12 +54,13 @@ def validate_user_wallet_input(message, chat_id, cripto, value, user, message_id
         pass
     user_id = message.text
     if User.objects.filter(chat_id=user_id):
+        number_str = get_number(value)
         text = 'ИНФОРМАЦИЯ О ПЕРЕВОДЕ:\n' \
-               f'Вы отправляете: {value} {cripto}\n' \
+               f'Вы отправляете: {number_str} {cripto}\n' \
                f'Кому отправляете: {user_id}'
         bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.send_to_user_button(cripto=cripto, user_id=user_id))
     else:
-        user_vallet_input(chat_id=chat_id, user=user, cripto=cripto, value=value, error='Данного пользователя нет в боте')
+        user_wallet_input(chat_id=chat_id, user=user, cripto=cripto, value=value, error='Данного пользователя нет в боте')
 
 
 

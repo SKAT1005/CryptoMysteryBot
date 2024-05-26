@@ -33,7 +33,7 @@ def headers(sheet, name):
 def history(user):
     wb = openpyxl.Workbook()
     change_history = History.objects.filter(user=user, type='Обмен')
-    buy_history = History.objects.filter(user=user, type='Пополнение')
+    buy_history = History.objects.filter(user=user, type='Пополнения')
     conclusion_history = History.objects.filter(user=user, type='Вывод')
     send_to_user_history = History.objects.filter(user=user, type='Перевод пользователю')
     change = wb.create_sheet(title='Обмены')
@@ -95,9 +95,12 @@ def history(user):
         change.cell(row=row, column=7, value=data.course).alignment = alignment
 
     for row, data in enumerate(buy_history, start=7):
+        type = data.get_cripto
+        if type == 'RUB':
+            type = 'Карта'
         buy.cell(row=row, column=1, value=data.date).alignment = alignment
         buy.cell(row=row, column=2, value=data.get_cripto).alignment = alignment
-        buy.cell(row=row, column=3, value=data.send_cripto).alignment = alignment
+        buy.cell(row=row, column=3, value=type).alignment = alignment
         buy.cell(row=row, column=4, value=str(data.get_value)).alignment = alignment
         buy.cell(row=row, column=5, value=data.course).alignment = alignment
 

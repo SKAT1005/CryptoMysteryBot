@@ -70,13 +70,14 @@ def approve(user_id, review_id, msg_id):
     user.wallet.buy('USDT', 1)
     rate = '🌟'*review.rate
     bot.send_message(chat_id=user_id, text='Ваш отзыв одобрен!')
-    text = f"Сумма операции: {review.value}\n\n" \
+    text = f"👨‍🎨 Автор: {user.username}\n" \
+           f"💶 Сумма операции: : {review.value}\n" \
            f"Оценка: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
     bot.send_message(chat_id='-1002120671637', text=text)
 
-def callback(data, user, chat_id):
+def callback(data, user, chat_id, username):
     if data[0] == 'approve':
         approve(user_id=data[1], review_id=data[2], msg_id=data[3])
     elif data[0] == 'rate':
@@ -98,4 +99,4 @@ def callback(data, user, chat_id):
             msg = bot.send_message(chat_id=chat_id, text='Введите текст отзыва')
             bot.register_next_step_handler(msg, review_text, chat_id, user, msg.id)
     elif data[0] == 'send_to_admin':
-        send_review_to_admin(chat_id, user)
+        send_review_to_admin(chat_id, user, username)
