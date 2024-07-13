@@ -7,9 +7,14 @@ class User(models.Model):
                               verbose_name='Действие пользователя(системное поле)')
     send_cripto = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='Сколько валюты отправляет')
     get_cripto = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='Сколько валюты получает')
-    wallet = models.OneToOneField('Wallet', auto_created=True, on_delete=models.CASCADE, verbose_name='Кошелек пользователя')
+    wallet = models.OneToOneField('Wallet', blank=True, on_delete=models.CASCADE, verbose_name='Кошелек пользователя')
     referal_id = models.CharField(max_length=32, blank=True, null=True,
                                   verbose_name='ID реферала')
+    personal_chat_id = models.CharField(max_length=64, blank=True, null=True, verbose_name='ID персонального чата')
+    locale = models.CharField(max_length=32, default='RU', verbose_name='Локализация')
+    text = models.TextField(blank=True, null=True,verbose_name='Текст отзыва')
+    rate = models.IntegerField(default=1, verbose_name='Оценка отзыва')
+    last_value = models.CharField(max_length=256, blank=True, null=True, verbose_name='Значение прошлой сделки')
     is_admin = models.BooleanField(default=False, verbose_name='Является ли пользователь админом')
 
 
@@ -29,7 +34,7 @@ class Wallet(models.Model):
                f'ETH: {float(self.eth)}\n' \
                f'TRX: {float(self.trx)}\n' \
                f'TON: {float(self.ton)}\n' \
-               f'XMR: {float(self.xmr)}\n'.replace('.', ',')
+               f'XMR: {float(self.xmr)}\n'.replace('.', ',').replace('-', '\-')
 
     def check_balance(self, cripto, value):
         if getattr(self, cripto.lower()) >= value:
@@ -65,15 +70,15 @@ class Review(models.Model):
 
 
 class History(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='usr', verbose_name='Чья история')
-    type = models.CharField(max_length=128, verbose_name='Тип операции')
-    send_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='Сколько валюты отправляет')
-    send_cripto = models.CharField(max_length=128, blank=True, verbose_name='Какую криптовалюту отправляете')
-    get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, verbose_name='Сколько валюты получаете')
-    get_cripto = models.CharField(max_length=128, blank=True, verbose_name='Какую криптовалюту получаете')
-    course = models.FloatField(default=0, verbose_name='Курс операции')
-    address = models.CharField(max_length=256, blank=True, verbose_name='Адрес операции')
-    date = models.DateField(auto_now_add=True, verbose_name='Дата операции')
+    user = models.ForeignKey('User', on_delete=models.CASCADE, null=True, related_name='usr', verbose_name='Чья история')
+    type = models.CharField(max_length=32, null=True, verbose_name='Тип операции')
+    send_value = models.DecimalField(default=0, max_digits=1000, null=True, decimal_places=8, verbose_name='Сколько валюты отправляет')
+    send_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту отправляете')
+    get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, null=True, verbose_name='Сколько валюты получаете')
+    get_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту получаете')
+    course = models.FloatField(default=0, null=True, verbose_name='Курс операции')
+    address = models.CharField(max_length=256, blank=True, null=True, verbose_name='Адрес операции')
+    date = models.DateField(auto_now_add=True, null=True, verbose_name='Дата операции')
 
 
 
