@@ -70,15 +70,14 @@ class Review(models.Model):
 
 
 class History(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='usr', verbose_name='Чья история')
-    type = models.CharField(max_length=32, verbose_name='Тип операции')
-    send_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='Сколько валюты отправляет')
-    send_cripto = models.CharField(max_length=128, blank=True, verbose_name='Какую криптовалюту отправляете')
-    get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, verbose_name='Сколько валюты получаете')
-    get_cripto = models.CharField(max_length=128, blank=True, verbose_name='Какую криптовалюту получаете')
-    course = models.FloatField(default=0, verbose_name='Курс операции')
-    address = models.CharField(max_length=256, blank=True, verbose_name='Адрес операции')
-    date = models.DateField(auto_now_add=True, verbose_name='Дата операции')
-
+    user = models.ForeignKey('User', on_delete=models.CASCADE, null=True, related_name='usr', verbose_name='Чья история')
+    type = models.CharField(max_length=32, null=True, verbose_name='Тип операции')
+    send_value = models.DecimalField(default=0, max_digits=1000, null=True, decimal_places=8, verbose_name='Сколько валюты отправляет')
+    send_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту отправляете')
+    get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, null=True, verbose_name='Сколько валюты получаете')
+    get_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту получаете')
+    course = models.FloatField(default=0, null=True, verbose_name='Курс операции')
+    address = models.CharField(max_length=256, blank=True, null=True, verbose_name='Адрес операции')
+    date = models.DateField(auto_now_add=True, null=True, verbose_name='Дата операции')
 
 

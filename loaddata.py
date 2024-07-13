@@ -21,7 +21,6 @@ users = json.loads(users)
 historys = json.loads(historys)
 
 for i in users:
-    print(i)
     chat_id = i['chat_id']
     referral_id = i['referral_id']
     wallet_id = i['wallet']
@@ -52,15 +51,15 @@ for i in historys:
     course = i['course']
     adress = i['adress']
     date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
-    user = User.objects.get(chat_id=i['type'])
+    user = User.objects.get(chat_id=i['user'])
     History.objects.create(
         user=user,
         type=type,
         send_value=send_value,
-        send_crypto=send_crypto,
+        send_cripto=send_crypto,
         get_value=get_value,
-        get_crypto=get_crypto,
+        get_cripto=get_crypto,
         course=course,
-        adress=adress,
+        address=adress,
         date=date,
     )
