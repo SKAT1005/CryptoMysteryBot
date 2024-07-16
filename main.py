@@ -136,11 +136,12 @@ def commissions(chat_id):
 def callback(call):
     message_id = call.message.id
     chat_id = call.message.chat.id
-    username = call.message.chat.username
+    first_name = call.message.chat.first_name
+    print(call.message.chat)
     msg_text = call.message.text
     user, _ = User.objects.get_or_create(chat_id=call.from_user.id)
-    if username and username != user.username:
-        user.username = username
+    if first_name and first_name != user.first_name:
+        user.username = first_name
         user.save()
     if call.message:
         data = call.data.split('|')
