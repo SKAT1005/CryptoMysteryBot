@@ -20,12 +20,13 @@ def send_review_to_admin(user_id, user):
     admins = User.objects.filter(is_admin=True)
     admin_message = AdminMessage.objects.create(chat_id=user_id)
     markup = buttons.review_admin(user_id=user_id, review_id=review.id, msg_id=admin_message.id)
-    rate = '⭐️'*int(review.rate)
+    rate = '⭐️' * int(review.rate)
     text = f'Оценка: {rate}\n' \
            f'Сумма операции: {review.value}\n' \
            f'Текст операции: {review.text}'
     messages_id = ''
-    bot.send_message(chat_id=user_id, text='🧿👍 - Ваш отзыв будет опубликован в ближайшее время.', reply_markup=buttons.go_to_menu())
+    bot.send_message(chat_id=user_id, text='🧿👍 - Ваш отзыв будет опубликован в ближайшее время.',
+                     reply_markup=buttons.go_to_menu())
     for admin in admins:
         try:
             msg = bot.send_message(chat_id=admin.chat_id, text=text, reply_markup=markup)
@@ -65,18 +66,20 @@ def review_text(message, chat_id, user, message_id):
 
 
 def approve(user_id, review_id, msg_id):
-    # delete_for_admins(id=msg_id)
+    #delete_for_admins(id=msg_id)
     review = Review.objects.get(id=review_id)
     user = User.objects.get(chat_id=user_id)
     user.wallet.buy('USDT', 1)
-    rate = '🌟'*review.rate
+    rate = '🌟' * review.rate
     bot.send_message(chat_id=user_id, text='Ваш отзыв одобрен!')
-    text = f"👤:  {user.username}\n" \
-           f"✅: 💳  ➡️ {review.value}➡️ 🧿\n" \
-           f"🏆: Оценка: {rate}\n" \
+    text = f"➖➖➖➖➖➖➖➖➖➖➖➖\n" \
+           f"👤: *{user.username}*\n\n" \
+           f"✅: 💳  ➡️ {review.value}➡️ 🧿\n\n" \
+           f"🏆: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
-    bot.send_message(chat_id='-1001981218326', text=text)
+    bot.send_message(chat_id='-1001981218326', text=text.replace('.', '\.'), parse_mode='MarkdownV2')
+
 
 def callback(data, user, chat_id):
     if data[0] == 'approve':
@@ -94,7 +97,7 @@ def callback(data, user, chat_id):
             user.save()
         except Exception:
             pass
-        if len(data)==3:
+        if len(data) == 3:
             user_approve(user=user, chat_id=chat_id)
         else:
             msg = bot.send_message(chat_id=chat_id, text='Введите текст отзыва')
