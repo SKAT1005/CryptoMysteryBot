@@ -138,7 +138,8 @@ def admin_approve(data):
 
 def admin_cansel(data):
     """Если админ отклоняет действие"""
-    user = User.objects.get(id=data[-1])
+    print(data)
+    user = User.objects.get(chat_id=data[-1])
     user.get_cripto = 0
     user.send_cripto = 0
     user.save()
@@ -274,8 +275,7 @@ def validate(chat_id, a, data):
     return False
 
 def get_number(number):
-    if isinstance(number, (int, float)):
-        return f"{number:,.0f}".replace(",", ".")
+    return f"{number:,}".replace(",", " ")
 
 def change1_3_input(message, chat_id, data, message_id):
     """Обработка ввода того, сколько валюты хочет получить пользователь"""
@@ -344,8 +344,10 @@ def change1_3_input(message, chat_id, data, message_id):
             confirm = types.InlineKeyboardButton(text='Отправил',
                                                  callback_data=f'change|approve|{data[1]}|{data[-2]}')
             markup.add(confirm, cansel, back)
-        user.get_cripto = decimal.Decimal(get.replace(',', '.').replace(' ', ''))
-        user.send_cripto = decimal.Decimal(send.replace(',', '.').replace(' ', ''))
+        nn = decimal.Decimal(get.replace(',', '.').replace(' ', ''))
+        ll = decimal.Decimal(send.replace(',', '.').replace(' ', ''))
+        user.get_cripto = nn
+        user.send_cripto = ll
         user.save()
         bot.send_message(chat_id, text=text.replace('.', '\.'), reply_markup=markup, parse_mode='MarkdownV2')
 
