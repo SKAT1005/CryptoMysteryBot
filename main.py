@@ -137,7 +137,6 @@ def callback(call):
     message_id = call.message.id
     chat_id = call.message.chat.id
     username = call.message.chat.username
-    print(username)
     user, _ = User.objects.get_or_create(chat_id=call.from_user.id)
     if username and username != user.username:
         user.username = username
