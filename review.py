@@ -76,7 +76,7 @@ def approve(user_id, review_id, msg_id):
            f"Оценка: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
-    bot.send_message(chat_id='-1002120671637', text=text)
+    bot.send_message(chat_id='-1001981218326', text=text)
 
 def callback(data, user, chat_id):
     if data[0] == 'approve':
@@ -100,4 +100,4 @@ def callback(data, user, chat_id):
             msg = bot.send_message(chat_id=chat_id, text='Введите текст отзыва')
             bot.register_next_step_handler(msg, review_text, chat_id, user, msg.id)
     elif data[0] == 'send_to_admin':
-        send_review_to_admin(chat_id, user, username)
+        send_review_to_admin(chat_id, user)
