@@ -75,7 +75,7 @@ def approve(user_id, review_id, msg_id):
            f"Оценка: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
-    bot.send_message(chat_id='-1002120671637', text=text)
+    bot.send_message(chat_id='-1001981218326', text=text)
 
 def callback(data, user, chat_id, username):
     if data[0] == 'approve':

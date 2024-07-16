@@ -11,9 +11,9 @@ django.setup()
 from app.models import User, Wallet, History
 with open('wallet.json', 'r', encoding='UTF-8') as wallets:
     wallets = wallets.read()
-with open('user.json', 'r') as users:
+with open('user.json', 'r', encoding='UTF-8') as users:
     users = users.read()
-with open('history.json', 'r') as historys:
+with open('history.json', 'r', encoding='UTF-8') as historys:
     historys = historys.read()
 
 wallets = [json.loads(i) for i in wallets.strip().splitlines()]

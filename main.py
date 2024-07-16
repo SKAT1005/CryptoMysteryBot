@@ -167,7 +167,7 @@ def callback(call):
             if len(data) == 2:
                 course(chat_id=chat_id, value=data[1])
             else:
-                course(chat_id=chat_id)
+                course(chat__id=chat_id)
         elif data[0] == 'review':
             review.callback(data=data[1:], chat_id=chat_id, user=user)
         elif data[0] == 'history':
