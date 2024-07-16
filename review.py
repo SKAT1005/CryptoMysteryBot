@@ -35,7 +35,7 @@ def send_review_to_admin(user_id, user):
     admin_message.messages_id = messages_id[:-1]
     admin_message.save()
 
-def delite_for_admins(id):
+def delete_for_admins(id):
     """Удаление всех сообщений админам"""
     admin_messages = AdminMessage.objects.get(id=id)
     for message_id in admin_messages.messages_id.split(','):
@@ -65,7 +65,7 @@ def review_text(message, chat_id, user, message_id):
 
 
 def approve(user_id, review_id, msg_id):
-    delite_for_admins(id=msg_id)
+    # delete_for_admins(id=msg_id)
     review = Review.objects.get(id=review_id)
     user = User.objects.get(chat_id=user_id)
     user.wallet.buy('USDT', 1)

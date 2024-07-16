@@ -140,7 +140,7 @@ def callback(call):
     print(call.message.chat)
     msg_text = call.message.text
     user, _ = User.objects.get_or_create(chat_id=call.from_user.id)
-    if first_name and first_name != user.first_name:
+    if first_name and first_name != user.username:
         user.username = first_name
         user.save()
     if call.message:
