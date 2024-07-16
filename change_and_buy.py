@@ -50,7 +50,8 @@ payment = {
 
 }
 def history(type, send_value, send_cripto, get_value, get_cripto, user_id):
-    course = get_course(send_cripto, get_cripto)
+    course_send = get_course(send_cripto, 'USDT')
+    course_get = get_course(get_cripto, 'USDT')
     user = User.objects.get(chat_id=user_id)
     History.objects.create(
         user=user,
@@ -59,7 +60,8 @@ def history(type, send_value, send_cripto, get_value, get_cripto, user_id):
         send_cripto=send_cripto,
         get_value=get_value,
         get_cripto=get_cripto,
-        course=course
+        course_send=course_send,
+        course_get=course_get
     )
 
 def admins_buttons(chat_id, data, id):
@@ -68,7 +70,8 @@ def admins_buttons(chat_id, data, id):
     markup = types.InlineKeyboardMarkup(row_width=1)
     approve = types.InlineKeyboardButton(text='Одобрить', callback_data=f'change|adm_approve|{inline}|{id}|{chat_id}')
     cansel = types.InlineKeyboardButton(text='Отклонить', callback_data=f'change|adm_cansel|{id}|{chat_id}')
-    markup.add(approve, cansel)
+    view_user = types.InlineKeyboardButton('Посмотерь аккаунт пользователя', url=f'tg://user?id={chat_id}')
+    markup.add(approve, cansel, view_user)
     return markup
 
 
@@ -355,13 +358,22 @@ def change1_3_input(message, chat_id, data, message_id):
 
 def change1_3(chat_id, data, error=False):
     """Просьба пользователя ввести кол-во валюты, которое хочет получить"""
+    n = data[:-1]
+    if data[-1] == '2':
+        n[0] = 'change2_1_2_2'
+    else:
+        n[0] = 'change1_1_2_2'
+    dt = '|'.join(n)
+    markup = types.InlineKeyboardMarkup()
+    back = types.InlineKeyboardButton('Назад', callback_data=f'change|{dt}')
+    markup.add(back)
     if error:
         text = error
     elif data[-1] == '2':
         text = f'Введите сколько {data[-2]} вы хотите получить.'
     else:
         text = f'Введите сколько {data[1]} вы хотите отдать.'
-    msg = bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.go_to_menu())
+    msg = bot.send_message(chat_id=chat_id, text=text, reply_markup=markup)
     bot.register_next_step_handler(msg, change1_3_input, chat_id, data, msg.id)
 
 

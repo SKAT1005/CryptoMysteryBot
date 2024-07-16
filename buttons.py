@@ -1,3 +1,5 @@
+import decimal
+
 from telebot import types
 
 def review_admin(user_id, review_id, msg_id):
@@ -46,9 +48,9 @@ def admins_button(id, cripto, user_id, wallet=False):
     return markup
 
 
-def conclusion_button(cripto, value, wallet):
+def conclusion_button(cripto, value, wallet, net=''):
     markup = types.InlineKeyboardMarkup(row_width=1)
-    approve = types.InlineKeyboardButton(text='✅ Одобрить вывод', callback_data=f'conclusion|{cripto}|{value}|{wallet}')
+    approve = types.InlineKeyboardButton(text='✅ Одобрить вывод', callback_data=f'conclusion|{cripto}|{value}|{wallet}|{net}')
     cansel = types.InlineKeyboardButton(text='❌ Отменить вывод', callback_data=f'menu')
     markup.add(approve, cansel)
     return markup
@@ -61,16 +63,24 @@ def send_to_user_button(cripto, user_id):
     markup.add(approve, cansel)
     return markup
 
-def cource(value='RUB'):
-    markup = types.InlineKeyboardMarkup()
+def cource(type='buy', value='RUB'):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    if type == 'buy':
+        type_n = 'sell'
+        text = 'Курс на продажу'
+    else:
+        text = 'Курс на покупку'
+        type_n = 'buy'
     if value == 'RUB':
         n = 'USD'
     else:
         n = 'RUB'
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
-    update = types.InlineKeyboardButton(text='🔄 Обновить', callback_data=f'course|{value}')
-    change_value = types.InlineKeyboardButton(text='Сменить валюту', callback_data=f'course|{n}')
-    markup.add(menu)
+    change_type = types.InlineKeyboardButton(text=text, callback_data=f'course|{type_n}|{value}')
+    update = types.InlineKeyboardButton(text='🔄 Обновить', callback_data=f'course|{type}|{value}')
+    change_value = types.InlineKeyboardButton(text='Сменить валюту', callback_data=f'course|{type}|{n}')
+    markup.add(update, change_value, change_type, menu)
+    return markup
 
 
 def choose_cripto(param):
@@ -100,7 +110,11 @@ def go_to_menu():
     markup.add(menu)
     return markup
 
-
+def go_to_wallet():
+    markup = types.InlineKeyboardMarkup()
+    my_wallet = types.InlineKeyboardButton(text='Назад в кошелек', callback_data='my_wallet')
+    markup.add(my_wallet)
+    return markup
 def menu_buttons(chat_id):
     referal_text = 'Приглашаю тебя в бот 🧿 Crypto Mystery!\n\n' \
                    '🧿 Crypto Mystery это:\n\n' \
@@ -109,7 +123,7 @@ def menu_buttons(chat_id):
                    f'https://t.me/cryptohuibot?start={chat_id}'
     markup = types.InlineKeyboardMarkup(row_width=2)
     my_wallet = types.InlineKeyboardButton(text='💳 Ваш кошелек Crypto Mystery', callback_data='my_wallet')
-    course = types.InlineKeyboardButton(text='📈 Табло курсов', callback_data='course')
+    course = types.InlineKeyboardButton(text='📈 Табло курсов', callback_data='course|buy')
     reviews = types.InlineKeyboardButton(text='💬 Отзывы', url='https://t.me/feedback_crypto_mystery')
     referal = types.InlineKeyboardButton(text='🤝 Отправить реферальную ссылку', switch_inline_query=referal_text)
     newspaper = types.InlineKeyboardButton(text='📰 Газета Crypto Mystery', url='https://t.me/crypto_mystery_news')
@@ -134,11 +148,28 @@ def ref(chat_id):
     referal = types.InlineKeyboardButton(text='🤝 Отправить реферальную ссылку', switch_inline_query=referal_text)
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
     markup.add(referal, menu)
+    return markup
 def commissions():
     markup = types.InlineKeyboardMarkup(row_width=1)
     my_wallet = types.InlineKeyboardButton(text='💳 Ваш кошелек Crypto Mystery', callback_data='my_wallet')
     menu = types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='menu')
     markup.add(my_wallet, menu)
+    return markup
+
+def choose_bank_or_net(cripto):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    if cripto == 'USDT':
+        trc = types.KeyboardButton('TRC20')
+        erc = types.KeyboardButton('ERC20')
+        bep = types.KeyboardButton('BEP20')
+        spl = types.KeyboardButton('SPL20')
+        markup.add(trc, erc, bep, spl)
+    else:
+        sber = types.KeyboardButton('Сбербаек')
+        gpb = types.KeyboardButton('ГПБ')
+        psb = types.KeyboardButton('ПСБ')
+        alpha = types.KeyboardButton('Альфа Банк')
+        markup.add(sber, gpb, psb, alpha)
     return markup
 
 def wallet_buttons():

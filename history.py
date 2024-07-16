@@ -14,8 +14,8 @@ from const import bot
 from app.models import History, User
 
 change_header = [['Дата', 15], ['Вы отдали (валюта)', 20], ['Вы отдали (количество)', 25], ['Вы получили (валюта)', 25],
-                 ['Вы получили (количество)', 30], ['Пара обмена', 20], ['Курс обмена', 20]]
-buy_header = [['Дата', 15], ['Валюта пополнения', 21], ['Способ пополнения', 25], ['Количество', 20], ['Курс', 20]]
+                 ['Вы получили (количество)', 30], ['Пара обмена', 20], ['Курс валюты, которую отдаете к USDT', 40], ['Курс валюты, которую получаете к USDT', 41]]
+buy_header = [['Дата', 15], ['Валюта пополнения', 21], ['Способ пополнения', 25], ['Количество', 20], ['Курс валюты, которую получаете к USDT', 41]]
 conclusion_header = [['Дата', 15], ['Валюта вывода', 20], ['Адрес вывода', 25], ['Количество', 30]]
 send_to_user_header = [['Дата', 15], ['Валюта перевода', 20], ['Количество', 25],
                        ['Кошелек, на который совершен перевод', 43]]
@@ -92,7 +92,8 @@ def history(user):
         change.cell(row=row, column=4, value=data.get_cripto).alignment = alignment
         change.cell(row=row, column=5, value=str(data.get_value)).alignment = alignment
         change.cell(row=row, column=6, value=f'{data.send_cripto} -> {data.get_cripto}').alignment = alignment
-        change.cell(row=row, column=7, value=data.course).alignment = alignment
+        change.cell(row=row, column=7, value=data.course_send).alignment = alignment
+        change.cell(row=row, column=8, value=data.course_get).alignment = alignment
 
     for row, data in enumerate(buy_history, start=7):
         type = data.get_cripto
@@ -102,7 +103,7 @@ def history(user):
         buy.cell(row=row, column=2, value=data.get_cripto).alignment = alignment
         buy.cell(row=row, column=3, value=type).alignment = alignment
         buy.cell(row=row, column=4, value=str(data.get_value)).alignment = alignment
-        buy.cell(row=row, column=5, value=data.course).alignment = alignment
+        buy.cell(row=row, column=5, value=data.course_get).alignment = alignment
 
     for row, data in enumerate(conclusion_history, start=7):
         conclusion.cell(row=row, column=1, value=data.date).alignment = alignment
