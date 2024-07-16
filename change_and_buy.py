@@ -389,6 +389,8 @@ def change1_31(chat_id, data):
 
 def change2_1_2_2(chat_id, data):
     """Выбор того, что пользователь хочет ввести(Сколько хочет отдать или сколько хочет получить)"""
+    if data[-1] in '123456':
+        data = data[:-1]
     user = User.objects.get(chat_id=chat_id)
     text = 'Выберите, какую валюту вы хотите получить\n\n' \
            f'===================================\n' \
@@ -431,10 +433,10 @@ def new_callback(data, user, chat_id, msg_text=None):
     elif data[0] == 'approve':  # Внешний перевод
         send_message_to_admin(data=data, chat_id=chat_id)
     elif data[0] == 'adm_approve':
-        delite_for_admins(data[-2], msg_text=msg_text, type='👌\n')
+        # delite_for_admins(data[-2], msg_text=msg_text, type='👌\n')
         admin_approve(data=data)
     elif data[0] == 'adm_cansel':
-        delite_for_admins(data[-2], msg_text=msg_text, type='❌\n')
+        # delite_for_admins(data[-2], msg_text=msg_text, type='❌\n')
         admin_cansel(data=data)
     else:
         bot.send_message(chat_id=chat_id,

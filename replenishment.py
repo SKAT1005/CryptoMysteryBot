@@ -48,7 +48,7 @@ def approve_replenishment(data, msg_text):
     cripto = data[1]
     id = data[2]
     user = User.objects.get(chat_id=data[3])
-    delite_for_admins(id=id, msg_text=msg_text, type='❌')
+    # delite_for_admins(id=id, msg_text=msg_text, type='❌')
     user.wallet.buy(cripto=cripto, value=user.send_cripto)
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на пополнение {number_str} {cripto} одобрена! Оставьте отзыв и получите 1 USDT', reply_markup=buttons.review())
@@ -61,7 +61,7 @@ def cansel_replenishment(data, msg_text):
     cripto = data[1]
     id = data[2]
     user = User.objects.get(chat_id=data[3])
-    delite_for_admins(id=id, msg_text=msg_text, type='❌')
+    # delite_for_admins(id=id, msg_text=msg_text, type='❌')
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} отклонена!')
     user.send_cripto = 0

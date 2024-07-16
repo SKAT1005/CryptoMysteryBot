@@ -41,7 +41,7 @@ def approve_conclusion(data, msg_text):
     cripto = data[0]
     id = data[1]
     user = User.objects.get(chat_id=data[2])
-    delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
+    # delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
     user.wallet.delite_cripto(cripto=cripto, value=user.send_cripto)
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} одобрена!Оставьте отзыв и получите 1 USDT', reply_markup=buttons.review())
@@ -54,7 +54,7 @@ def cansel_conclusion(data, msg_text):
     cripto = data[0]
     id = data[1]
     user = User.objects.get(chat_id=data[2])
-    delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
+    # delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} отклонена!')
     user.send_cripto = 0
