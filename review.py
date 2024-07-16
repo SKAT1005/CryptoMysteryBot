@@ -100,4 +100,4 @@ def callback(data, user, chat_id):
             msg = bot.send_message(chat_id=chat_id, text='Введите текст отзыва')
             bot.register_next_step_handler(msg, review_text, chat_id, user, msg.id)
     elif data[0] == 'send_to_admin':
-        send_review_to_admin(chat_id, user)
+        send_review_to_admin(chat_id, user, username)
