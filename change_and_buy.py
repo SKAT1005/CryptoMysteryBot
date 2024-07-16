@@ -68,8 +68,7 @@ def admins_buttons(chat_id, data, id):
     markup = types.InlineKeyboardMarkup(row_width=1)
     approve = types.InlineKeyboardButton(text='Одобрить', callback_data=f'change|adm_approve|{inline}|{id}|{chat_id}')
     cansel = types.InlineKeyboardButton(text='Отклонить', callback_data=f'change|adm_cansel|{id}|{chat_id}')
-    view_user = types.InlineKeyboardButton('Посмотерь аккаунт пользователя', url=f'tg://user?id={chat_id}')
-    markup.add(approve, cansel, view_user)
+    markup.add(approve, cansel)
     return markup
 
 
@@ -85,8 +84,8 @@ def send_message_to_admin(data, chat_id):
     get_value = get_number(user.get_cripto)
     if data[0] == 'confirm':
         text = "ВНУТРЕННИЙ ОБМЕН\n\n" + \
-               f"Отдает {send_value} - {send_cur} \n\n" + \
-               f"Получает{get_value} - {get_cur}\n\n" + user.wallet.wallet_balance()
+               f"Отдает: {send_value} - {send_cur} \n\n" + \
+               f"Получает: {get_value} - {get_cur}\n\n" + user.wallet.wallet_balance()
     else:
         bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
         text = 'ВНЕШНИЙ ОБМЕН\n\n' \
@@ -183,8 +182,8 @@ def menu(chat_id):
 def change1_1(chat_id, data):
     user = User.objects.get(chat_id=chat_id)
     """Выбор валюты, которую хотят отдать"""
-    text = 'Crypto M wallet\n' \
-           f'ID: {chat_id}\n' \
+    text = 'Выберите валюту, которую вы хотите отдать\n\n' \
+           f'===================================\n' \
            'Баланс вашего кошелька:\n\n' + user.wallet.wallet_balance()
     markup = types.InlineKeyboardMarkup(row_width=4)
     rub = types.InlineKeyboardButton(text='RUB', callback_data=f'change|{data[0]}_2|RUB')
@@ -275,12 +274,8 @@ def validate(chat_id, a, data):
     return False
 
 def get_number(number):
-    number_str = str(number).split('.')
-    formatted_number = " ".join(number_str[0][i:i + 3] for i in range(0, len(number_str[0]), 3))
-    try:
-        return formatted_number+f',{number_str[1]}'
-    except Exception:
-        return formatted_number
+    if isinstance(number, (int, float)):
+        return f"{number:,.0f}".replace(",", ".")
 
 def change1_3_input(message, chat_id, data, message_id):
     """Обработка ввода того, сколько валюты хочет получить пользователь"""
@@ -392,8 +387,8 @@ def change1_31(chat_id, data):
 def change2_1_2_2(chat_id, data):
     """Выбор того, что пользователь хочет ввести(Сколько хочет отдать или сколько хочет получить)"""
     user = User.objects.get(chat_id=chat_id)
-    text = 'Crypto M wallet\n' \
-           f'ID: {chat_id}\n' \
+    text = 'Выберите, какую валюту вы хотите получить\n\n' \
+           f'===================================\n' \
            'Баланс вашего кошелька:\n\n' + user.wallet.wallet_balance()
     markup = types.InlineKeyboardMarkup(row_width=1)
     send_first = f'{data[1]}'

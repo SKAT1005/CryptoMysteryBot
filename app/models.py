@@ -23,11 +23,11 @@ class User(models.Model):
 
 
 class Wallet(models.Model):
-    rub = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс RUB')
-    usdt = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс USDT')
+    rub = models.DecimalField(default=0, max_digits=1000, decimal_places=2, verbose_name='баланс RUB')
+    usdt = models.DecimalField(default=0, max_digits=1000, decimal_places=2, verbose_name='баланс USDT')
     btc = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс BTC')
     eth = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс ETH')
-    trx = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс TRX')
+    trx = models.DecimalField(default=0, max_digits=1000, decimal_places=5, verbose_name='баланс TRX')
     ton = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс TON')
     xmr = models.DecimalField(default=0, max_digits=1000, decimal_places=8, verbose_name='баланс XMR')
 

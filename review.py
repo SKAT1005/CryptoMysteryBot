@@ -25,6 +25,7 @@ def send_review_to_admin(user_id, user):
            f'Сумма операции: {review.value}\n' \
            f'Текст операции: {review.text}'
     messages_id = ''
+    bot.send_message(chat_id=user_id, text='🧿👍 - Ваш отзыв будет опубликован в ближайшее время.', reply_markup=buttons.go_to_menu())
     for admin in admins:
         try:
             msg = bot.send_message(chat_id=admin.chat_id, text=text, reply_markup=markup)
