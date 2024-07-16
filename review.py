@@ -77,7 +77,7 @@ def approve(user_id, review_id, msg_id):
            f"{review.text}"
     bot.send_message(chat_id='-1001981218326', text=text)
 
-def callback(data, user, chat_id, username):
+def callback(data, user, chat_id):
     if data[0] == 'approve':
         approve(user_id=data[1], review_id=data[2], msg_id=data[3])
     elif data[0] == 'rate':

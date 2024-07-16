@@ -68,7 +68,8 @@ def admins_buttons(chat_id, data, id):
     markup = types.InlineKeyboardMarkup(row_width=1)
     approve = types.InlineKeyboardButton(text='Одобрить', callback_data=f'change|adm_approve|{inline}|{id}|{chat_id}')
     cansel = types.InlineKeyboardButton(text='Отклонить', callback_data=f'change|adm_cansel|{id}|{chat_id}')
-    markup.add(approve, cansel)
+    view_user = types.InlineKeyboardButton('Посмотерь аккаунт пользователя', url=f'tg://user?id={chat_id}')
+    markup.add(approve, cansel, view_user)
     return markup
 
 
