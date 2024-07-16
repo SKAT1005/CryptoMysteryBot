@@ -347,7 +347,7 @@ def change1_3_input(message, chat_id, data, message_id):
         user.get_cripto = decimal.Decimal(get.replace(',', '.').replace(' ', ''))
         user.send_cripto = decimal.Decimal(send.replace(',', '.').replace(' ', ''))
         user.save()
-        bot.send_message(chat_id, text=text, reply_markup=markup, parse_mode='MarkdownV2')
+        bot.send_message(chat_id, text=text.replace('.', '\.'), reply_markup=markup, parse_mode='MarkdownV2')
 
 
 def change1_3(chat_id, data, error=False):
