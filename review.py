@@ -71,9 +71,9 @@ def approve(user_id, review_id, msg_id):
     user.wallet.buy('USDT', 1)
     rate = '🌟'*review.rate
     bot.send_message(chat_id=user_id, text='Ваш отзыв одобрен!')
-    text = f"👨‍🎨 Автор: {user.username}\n" \
-           f"💶 Сумма операции: : {review.value}\n" \
-           f"Оценка: {rate}\n" \
+    text = f"👤:  {user.username}\n" \
+           f"✅: 💳  ➡️ {review.value}➡️ 🧿\n" \
+           f"🏆: Оценка: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
     bot.send_message(chat_id='-1001981218326', text=text)
