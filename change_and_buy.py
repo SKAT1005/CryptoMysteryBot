@@ -432,7 +432,7 @@ def new_callback(data, user, chat_id, msg_text=None):
         send_message_to_admin(data=data, chat_id=chat_id)
     elif data[0] == 'adm_approve':
         delite_for_admins(data[-2], msg_text=msg_text, type='👌\n')
-        admin_approve(data=data, msg_text=msg_text)
+        admin_approve(data=data)
     elif data[0] == 'adm_cansel':
         delite_for_admins(data[-2], msg_text=msg_text, type='❌\n')
         admin_cansel(data=data)
