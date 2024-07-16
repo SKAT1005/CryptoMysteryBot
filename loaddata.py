@@ -16,12 +16,11 @@ with open('user.json', 'r', encoding='UTF-8') as users:
 with open('history.json', 'r', encoding='UTF-8') as historys:
     historys = historys.read()
 
-wallets = [json.loads(i) for i in wallets.strip().splitlines()]
-users = [json.loads(i) for i in users.strip().splitlines()]
-historys = [json.loads(i) for i in historys.strip().splitlines()]
+wallets = json.loads(wallets)
+users = json.loads(users)
+historys = json.loads(historys)
 
 for i in users:
-    print(i)
     chat_id = i['chat_id']
     referral_id = i['referral_id']
     wallet_id = i['wallet']
@@ -57,10 +56,10 @@ for i in historys:
         user=user,
         type=type,
         send_value=send_value,
-        send_crypto=send_crypto,
+        send_cripto=send_crypto,
         get_value=get_value,
-        get_crypto=get_crypto,
+        get_cripto=get_crypto,
         course=course,
-        adress=adress,
+        address=adress,
         date=date,
     )
