@@ -15,14 +15,15 @@ django.setup()
 from app.models import User, AdminMessage, History
 
 
-def delite_for_admins(id):
+def delite_for_admins(id, msg_text, type):
     """Удаление всех сообщений админам"""
+    msg_text = type + msg_text
     admin_messages = AdminMessage.objects.filter(id=id)
     if admin_messages:
         for message_id in admin_messages[0].messages_id.split(','):
+            chat_id, msg_id = message_id.split()
             try:
-                chat_id, msg_id = message_id.split()
-                bot.delete_message(chat_id=chat_id, message_id=msg_id)
+                bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=msg_text)
             except Exception:
                 pass
         admin_messages[0].delete()
@@ -36,11 +37,11 @@ def history(type, send_value, send_cripto, user_id, wallet):
         send_cripto=send_cripto,
         address=wallet,
     )
-def approve_conclusion(data):
+def approve_conclusion(data, msg_text):
     cripto = data[0]
     id = data[1]
     user = User.objects.get(chat_id=data[2])
-    delite_for_admins(id=id)
+    delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
     user.wallet.delite_cripto(cripto=cripto, value=user.send_cripto)
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} одобрена!Оставьте отзыв и получите 1 USDT', reply_markup=buttons.review())
@@ -49,11 +50,11 @@ def approve_conclusion(data):
     user.save()
 
 
-def cansel_conclusion(data):
+def cansel_conclusion(data, msg_text):
     cripto = data[0]
     id = data[1]
     user = User.objects.get(chat_id=data[2])
-    delite_for_admins(id=id)
+    delite_for_admins(id=id, msg_text=msg_text, type='👌\n')
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} отклонена!')
     user.send_cripto = 0
@@ -138,7 +139,7 @@ def input_cripto_text(chat_id, cripto, user, error=''):
     bot.register_next_step_handler(msg, validate_cripto_input, chat_id, msg.id, cripto, user)
 
 
-def callback(data, user, chat_id):
+def callback(data, user, chat_id, msg_text=None):
     if len(data) == 0:
         bot.send_message(chat_id=chat_id, text='Выберите криптовалюту для перевода',
                          reply_markup=buttons.choose_cripto(param='conclusion'))
@@ -150,8 +151,8 @@ def callback(data, user, chat_id):
         user.save()
         user_wallet_input(chat_id=chat_id, user=user, cripto=data[0], value=value)
     elif data[0] == 'approve':
-        approve_conclusion(data=data[1:])
+        approve_conclusion(data=data[1:], msg_text=msg_text)
     elif data[0] == 'cansel':
-        cansel_conclusion(data=data[1:])
+        cansel_conclusion(data=data[1:], msg_text=msg_text)
     else:
         send_to_admin(chat_id=chat_id, user=user, data=data)

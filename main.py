@@ -137,7 +137,7 @@ def callback(call):
     message_id = call.message.id
     chat_id = call.message.chat.id
     username = call.message.chat.username
-    print(username)
+    msg_text = call.message.text
     user, _ = User.objects.get_or_create(chat_id=call.from_user.id)
     if username and username != user.username:
         user.username = username
@@ -157,13 +157,13 @@ def callback(call):
             menu(chat_id=chat_id)
 
         elif data[0] == 'change':
-            change_and_buy.new_callback(data=data[1:], chat_id=chat_id, user=user)
+            change_and_buy.new_callback(data=data[1:], chat_id=chat_id, user=user, msg_text=msg_text)
         elif data[0] == 'my_wallet':
             wallet(chat_id=chat_id, user=user)
         elif data[0] == 'send_to_user':
             send_to_user.callback(data=data[1:], chat_id=chat_id, user=user)
         elif data[0] == 'conclusion':
-            conclusion.callback(data=data[1:], chat_id=chat_id, user=user)
+            conclusion.callback(data=data[1:], chat_id=chat_id, user=user, msg_text=msg_text)
         elif data[0] == 'course':
             if len(data) == 2:
                 course(chat_id=chat_id, value=data[1])
@@ -176,7 +176,7 @@ def callback(call):
         elif data[0] == 'analytics':
             analytics.analytics(chat_id, user)
         elif data[0] == 'replenishment':
-            replenishment.callback(data=data[1:], user=user, chat_id=chat_id)
+            replenishment.callback(data=data[1:], user=user, chat_id=chat_id, msg_text=msg_text)
         elif data[0] == 'commissions':
             commissions(chat_id)
         else:

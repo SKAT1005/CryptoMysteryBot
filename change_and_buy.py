@@ -149,14 +149,15 @@ def admin_cansel(data):
         pass
 
 
-def delite_for_admins(id):
+def delite_for_admins(id, msg_text, type):
     """Удаление всех сообщений админам"""
+    msg_text = type + msg_text
     admin_messages = AdminMessage.objects.filter(id=id)
     if admin_messages:
         for message_id in admin_messages[0].messages_id.split(','):
             chat_id, msg_id = message_id.split()
             try:
-                bot.delete_message(chat_id=chat_id, message_id=msg_id)
+                bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=msg_text)
             except Exception:
                 pass
         admin_messages[0].delete()
@@ -275,7 +276,7 @@ def validate(chat_id, a, data):
     return False
 
 def get_number(number):
-    return f"{number:,}".replace(",", " ")
+    return f"{number:,}".replace(",", " ").replace('.', ',')
 
 def change1_3_input(message, chat_id, data, message_id):
     """Обработка ввода того, сколько валюты хочет получить пользователь"""
@@ -349,7 +350,7 @@ def change1_3_input(message, chat_id, data, message_id):
         user.get_cripto = nn
         user.send_cripto = ll
         user.save()
-        bot.send_message(chat_id, text=text.replace('.', '\.'), reply_markup=markup, parse_mode='MarkdownV2')
+        bot.send_message(chat_id, text=text, reply_markup=markup, parse_mode='MarkdownV2')
 
 
 def change1_3(chat_id, data, error=False):
@@ -408,7 +409,7 @@ def change2_1_2_2(chat_id, data):
     bot.send_message(chat_id=chat_id, text=text, reply_markup=markup)
 
 
-def new_callback(data, user, chat_id):
+def new_callback(data, user, chat_id, msg_text=None):
     """Callback для обработки markup"""
     if data[0] == 'menu':
         menu(chat_id=chat_id)
@@ -430,10 +431,10 @@ def new_callback(data, user, chat_id):
     elif data[0] == 'approve':  # Внешний перевод
         send_message_to_admin(data=data, chat_id=chat_id)
     elif data[0] == 'adm_approve':
-        delite_for_admins(data[-2])
-        admin_approve(data=data)
+        delite_for_admins(data[-2], msg_text=msg_text, type='👌\n')
+        admin_approve(data=data, msg_text=msg_text)
     elif data[0] == 'adm_cansel':
-        delite_for_admins(data[-2])
+        delite_for_admins(data[-2], msg_text=msg_text, type='❌\n')
         admin_cansel(data=data)
     else:
         bot.send_message(chat_id=chat_id,

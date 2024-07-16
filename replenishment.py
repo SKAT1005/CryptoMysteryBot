@@ -15,15 +15,18 @@ from change_and_buy import payment
 from app.models import User, AdminMessage, History
 
 
-def delite_for_admins(id):
+def delite_for_admins(id, msg_text, type):
     """Удаление всех сообщений админам"""
-    admin_messages = AdminMessage.objects.get(id=id)
-    for message_id in admin_messages.messages_id.split(','):
-        try:
-            bot.delete_message(chat_id=admin_messages.chat_id, message_id=message_id)
-        except Exception:
-            pass
-    admin_messages.delete()
+    msg_text = type + msg_text
+    admin_messages = AdminMessage.objects.filter(id=id)
+    if admin_messages:
+        for message_id in admin_messages[0].messages_id.split(','):
+            chat_id, msg_id = message_id.split()
+            try:
+                bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=msg_text)
+            except Exception:
+                pass
+        admin_messages[0].delete()
 
 def get_course(cripto, value='RUB'):
     url = f'https://min-api.cryptocompare.com/data/price?fsym={cripto}&tsyms={value}'
@@ -41,11 +44,11 @@ def history(type, send_value, send_cripto, get_value, get_cripto, user):
     )
 
 
-def approve_replenishment(data):
+def approve_replenishment(data, msg_text):
     cripto = data[1]
     id = data[2]
     user = User.objects.get(chat_id=data[3])
-    delite_for_admins(id=id)
+    delite_for_admins(id=id, msg_text=msg_text, type='❌')
     user.wallet.buy(cripto=cripto, value=user.send_cripto)
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на пополнение {number_str} {cripto} одобрена! Оставьте отзыв и получите 1 USDT', reply_markup=buttons.review())
@@ -54,11 +57,11 @@ def approve_replenishment(data):
     user.save()
 
 
-def cansel_replenishment(data):
+def cansel_replenishment(data, msg_text):
     cripto = data[1]
     id = data[2]
     user = User.objects.get(chat_id=data[3])
-    delite_for_admins(id=id)
+    delite_for_admins(id=id, msg_text=msg_text, type='❌')
     number_str = get_number(user.send_cripto)
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на вывод {number_str} {cripto} отклонена!')
     user.send_cripto = 0
@@ -190,7 +193,7 @@ def input_value(chat_id, data, error=None):
     bot.register_next_step_handler(msg, validate_cripto_input, chat_id, msg.id, data)
 
 
-def callback(data, user, chat_id):
+def callback(data, user, chat_id, msg_text=None):
     if len(data) == 0:
         bot.send_message(chat_id=chat_id, text='Выберите криптовалюту для пополнения',
                          reply_markup=buttons.choose_cripto(param='replenishment'))
@@ -200,9 +203,9 @@ def callback(data, user, chat_id):
         bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
         send_to_admin(chat_id=chat_id, data=data, user=user)
     elif data[0] == 'adm_approve':
-        approve_replenishment(data)
+        approve_replenishment(data, msg_text=msg_text)
     elif data[0] == 'adm_cansel':
-        cansel_replenishment(data=data)
+        cansel_replenishment(data=data, msg_text=msg_text)
     elif len(data) == 1:
         if data[0] in ['RUB', 'USDT']:
             choose_net(chat_id, data)
