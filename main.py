@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import os
 import time
 
@@ -113,13 +114,14 @@ def get_sell_course(value):
     url = f'https://min-api.cryptocompare.com/data/price?fsym={value}&tsyms=RUB,BTC,ETH,USDT,TRX,TON,XMR'
     response = requests.get(url).json()
     for i in response:
-        n += f'{i} -> {float(response[i])} {value}\n'
+        cost = format(decimal.Decimal(response[i]).quantize(decimal.Decimal("1.00000000")).normalize(), 'f')
+        n += f'{i} -> {value}: {cost}\n'
     return n
 
 def course(chat_id, type, value='RUB'):
     date = datetime.datetime.now()
     msg = bot.send_message(chat_id=chat_id, text='Подождите, пожалуйста. Мы ищем самый актуальный курс')
-    text = f'Last update: {date.hour}:{date.minute}:{date.second}\n\n'
+    text = f'Время обновления: {date.hour}:{date.minute}:{date.second}\n\n'
     if type == 'buy':
         ciptos = ['BTC', 'ETH', 'USDT', 'TRX', 'TON', 'XMR']
         for cripto in ciptos:
@@ -160,6 +162,17 @@ def referal_url(message):
     text = '🤝 Реферальная программа:\n\n' \
            'Пригласите партнера в 🧿 Crypto Mystery и получайте от 10% с нашего профита от всех операций реферала!'
     bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.ref(chat_id=chat_id))
+
+
+@bot.message_handler(content_types='text')
+def clear_keyboard(message):
+    if message.text in ["🔄 Начать новый обмен", "💳 Ваш Crypto M кошелёк", "🤝 Реферальная программа", "📰 Газета Crypto Mystery", "⚙️ Настройки", "💬 Отзывы",  "❓Справка", "📈 Табло курсов"]:
+        chat_id = message.chat.id
+        markup = types.ReplyKeyboardRemove()
+        bot.send_message(chat_id=chat_id, text='Наш бот обновился, поэтому старая клавиатура у вас удалена. Для взаимодействия с ботом используйте новые кнопки меню или же команды.', reply_markup=markup)
+        time.sleep(2)
+        menu(chat_id=chat_id)
+
 
 def commissions(chat_id):
     text = 'Комиссии на вывод:\n\n' \
@@ -231,4 +244,4 @@ def callback(call):
             menu(chat_id=chat_id)
 
 
-bot.infinity_polling(timeout=50, long_polling_timeout = 25)
+bot.infinity_polling(timeout=50, long_polling_timeout=25)

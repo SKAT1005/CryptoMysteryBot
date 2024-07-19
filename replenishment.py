@@ -201,7 +201,6 @@ def callback(data, user, chat_id, msg_text=None):
     elif data[0] == 'accept':
         send_wallet(chat_id=chat_id, data=data, user=user)
     elif data[0] == 'send':
-        bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
         send_to_admin(chat_id=chat_id, data=data, user=user)
     elif data[0] == 'adm_approve':
         approve_replenishment(data, msg_text=msg_text)
