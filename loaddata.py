@@ -44,22 +44,58 @@ for i in users:
 
 for i in historys:
     type = i['type']
-    send_value = i['send_value']
-    send_crypto = i['send_crypto']
-    get_value = i['get_value']
-    get_crypto = i['get_crypto']
-    course = i['course']
-    adress = i['adress']
-    date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
-    user = User.objects.get(chat_id=i['user'])
-    History.objects.create(
-        user=user,
-        type=type,
-        send_value=send_value,
-        send_cripto=send_crypto,
-        get_value=get_value,
-        get_cripto=get_crypto,
-        course=course,
-        address=adress,
-        date=date,
-    )
+    if type == 'Обмен':
+        send_value = decimal.Decimal(i['send_value'])
+        send_crypto = i['send_crypto']
+        get_value = decimal.Decimal(i['get_value'])
+        get_crypto = i['get_crypto']
+        date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
+        user = User.objects.get(chat_id=i['user'])
+        History.objects.create(
+            user=user,
+            type=type,
+            send_value=send_value,
+            send_cripto=send_crypto,
+            get_value=get_value,
+            get_cripto=get_crypto,
+            date=date,
+        )
+    elif type == 'Пополнения':
+        send_value = decimal.Decimal(i['send_value'])
+        send_crypto = i['send_crypto']
+        date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
+        user = User.objects.get(chat_id=i['user'])
+        History.objects.create(
+            user=user,
+            type=type,
+            get_value=send_value,
+            get_cripto=send_crypto,
+            date=date,
+        )
+    elif type == 'Вывод':
+        send_value = decimal.Decimal(i['send_value'])
+        send_crypto = i['send_crypto']
+        date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
+        user = User.objects.get(chat_id=i['user'])
+        History.objects.create(
+            user=user,
+            type=type,
+            send_value=send_value,
+            send_cripto=send_crypto,
+            address='Информация отсутствует',
+            date=date,
+        )
+    elif type == 'Перевод пользователю':
+        send_value = decimal.Decimal(i['send_value'])
+        send_crypto = i['send_crypto']
+        address = i['adress']
+        date = datetime.datetime.strptime(i['date'], "%Y-%m-%d-%H:%M:%S")
+        user = User.objects.get(chat_id=i['user'])
+        History.objects.create(
+            user=user,
+            type=type,
+            send_value=send_value,
+            send_cripto=send_crypto,
+            address=address,
+            date=date,
+        )
