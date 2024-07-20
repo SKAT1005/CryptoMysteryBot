@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 
 import django
 import requests
@@ -8,6 +9,7 @@ from telebot import types
 import analytics
 import buttons
 import conclusion
+import const
 import history
 import review
 import send_to_user
@@ -25,6 +27,26 @@ def menu(chat_id):
     text = '👋🧿 - Добро пожаловать. Чем я могу Вам помочь?'
     bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.menu_buttons(chat_id))
 
+@bot.message_handler(commands=['help'])
+def help(message):
+    chat_id = message.chat.id
+    entities = []
+    text = '🦾 Возможности Крипто-Бота:\n\n🔄 Новый обмен /create\nДанная команда позволяет осуществить:\n- обмен криптовалюты и фиата;\n- мгновенный обмен с выводом на Ваш сторонний кошелёк;\n- пополнение внутреннего электронного кошелька.\n    \n💳 е-Кошелек /e_wallet\nПокажет Ваш внутренний электронный кошелёк с возможностью пополнить или вывести средства. Кошелёк позволяет хранить все перечисленные виды криптовалюты и фиата без комиссий и платежей.\n\n-Пополнение кошелька.\n*При переводе криптовалюты или фиата на адреса или счета бота комиссия 0%.\n-Вывод средств.\n\n🤝 Реферальная программа /referal_url\nПоделитесь возможностью  использовать Крипто-Бот с друзьями и знакомыми.\nПолучайте вознаграждения за активность приглашенных пользователей в виде процента от сделки.\n    \n📝 История сделок /history\nПредоставит Вашу суммарную статистику по каждой монете и общую сумму обмена в usdt.\n    \n❓ В случае возникновения любых вопросов, их можно написать в данный чат (@Crypto_Mystery_Operator).\nНаши операторы помогут Вам. Кроме того, мы всегда открыты для пожеланий по развитию Крипто-Бота.',
+    for n in const.entety:
+        entities.append(
+            types.MessageEntity(type=n['type'], offset=n['offset'], length=n['length'])
+        )
+    bot.send_message(chat_id, text, entities=entities)
+
+
+@bot.message_handler(commands=['feedbacks'])
+def feedbacks(message):
+    chat_id = message.chat.id
+    text = '🧿👇 - Здесь вы можете ознакомиться с 💬 отзывами наших клиентов.'
+    markup = types.InlineKeyboardMarkup()
+    url = types.InlineKeyboardButton('💬Отзывы', url='https://t.me/feedback_crypto_mystery')
+    markup.add(url)
+    bot.send_message(chat_id=chat_id, text=text, reply_markup=markup)
 
 def send_start_message_to_admin(username, chat_id):
     admins = User.objects.filter(is_admin=True)
@@ -42,15 +64,24 @@ def send_start_message_to_admin(username, chat_id):
             bot.send_message(chat_id=admin.chat_id, text=f'Произведен старт пользователем id: {chat_id}',
                              reply_markup=markup)
 
-
+def send_start_message(chat_id):
+    text = '👋🧿- Hi!'
+    bot.send_message(chat_id=chat_id, text=text)
+    text = "🧿 - Подписывайтесь на газету Crypto Mystery📰, где вы сможете узнать об актуальных событиях из мира криптовалют, постоянных конкурсах и новых возможностях данного бота."
+    markup = types.InlineKeyboardMarkup()
+    url = types.InlineKeyboardButton(text='🇷🇺📰Газета Crypto Mystery', url='https://t.me/+ukhGLz-132JmYWM6')
+    markup.add(url)
+    bot.send_message(chat_id=chat_id, text=text, reply_markup=markup)
 @bot.message_handler(commands=['start'])
 def start(message):
-    username = message.from_user.username
+    username = message.from_user.first_name
     chat_id = message.chat.id
     if not User.objects.filter(chat_id=chat_id):
         send_start_message_to_admin(username, chat_id)
+        send_start_message(chat_id=chat_id)
         wallte = Wallet.objects.create()
-        user, _ = User.objects.create(chat_id=chat_id, wallet=wallte), True
+        user, _ = User.objects.create(chat_id=chat_id, wallet=wallte, username=username), True
+        time.sleep(2)
     else:
         user, _ = User.objects.get(chat_id=chat_id), False
     if _ or not user.referal_id:
@@ -77,16 +108,26 @@ def get_course(cripto, value='RUB'):
     response = requests.get(url).json()
     return response[value]
 
+def get_sell_course(value):
+    n = ''
+    url = f'https://min-api.cryptocompare.com/data/price?fsym={value}&tsyms=RUB,BTC,ETH,USDT,TRX,TON,XMR'
+    response = requests.get(url).json()
+    for i in response:
+        n += f'{i} -> {float(response[i])} {value}\n'
+    return n
 
-def course(chat_id, value='RUB'):
+def course(chat_id, type, value='RUB'):
     date = datetime.datetime.now()
     msg = bot.send_message(chat_id=chat_id, text='Подождите, пожалуйста. Мы ищем самый актуальный курс')
-    ciptos = ['BTC', 'ETH', 'USDT', 'TRX', 'TON', 'XMR']
     text = f'Last update: {date.hour}:{date.minute}:{date.second}\n\n'
-    for cripto in ciptos:
-        course = get_course(cripto=cripto, value=value)
-        text += f'{value} -> {cripto}: {course}\n'
-    bot.edit_message_text(chat_id=chat_id, text=text, message_id=msg.id, reply_markup=buttons.go_to_menu())
+    if type == 'buy':
+        ciptos = ['BTC', 'ETH', 'USDT', 'TRX', 'TON', 'XMR']
+        for cripto in ciptos:
+            course = get_course(cripto=cripto, value=value)
+            text += f'{value} -> {cripto}: {course}\n'
+    else:
+        text += get_sell_course(value=value)
+    bot.edit_message_text(chat_id=chat_id, text=text, message_id=msg.id, reply_markup=buttons.cource(value=value, type=type))
 
 
 @bot.message_handler(commands=['e_wallet'])
@@ -111,7 +152,7 @@ def histor(message):
 @bot.message_handler(commands=['rate'])
 def rate(message):
     chat_id = message.chat.id
-    course(chat_id=chat_id)
+    course(chat_id=chat_id, type='buy')
 
 @bot.message_handler(commands=['referal_url'])
 def referal_url(message):
@@ -145,10 +186,17 @@ def callback(call):
     if call.message:
         data = call.data.split('|')
         bot.clear_step_handler_by_chat_id(chat_id=chat_id)
-        try:
-            bot.delete_message(chat_id=chat_id, message_id=message_id)
-        except Exception:
-            pass
+        if data[0] in ['change', 'conclusion', 'replenishment'] and len(data)>=2 and data[1] in ['approve', 'cansel', 'adm_approve', 'adm_cansel']:
+            if data[1] in ['approve', 'adm_approve']:
+                text = '✅\n' + call.message.text
+            else:
+                text = '❌\n' + call.message.text
+            bot.edit_message_text(chat_id=chat_id, text=text, message_id=message_id)
+        else:
+            try:
+                bot.delete_message(chat_id=chat_id, message_id=message_id)
+            except Exception:
+                pass
         if data[0] == 'menu':
             user.last_value = ''
             user.text = ''
@@ -165,10 +213,10 @@ def callback(call):
         elif data[0] == 'conclusion':
             conclusion.callback(data=data[1:], chat_id=chat_id, user=user, msg_text=msg_text)
         elif data[0] == 'course':
-            if len(data) == 2:
-                course(chat_id=chat_id, value=data[1])
+            if len(data) == 3:
+                course(chat_id=chat_id, value=data[2], type=data[1])
             else:
-                course(chat_id=chat_id)
+                course(chat_id=chat_id, type=data[1])
         elif data[0] == 'review':
             review.callback(data=data[1:], chat_id=chat_id, user=user)
         elif data[0] == 'history':
@@ -183,4 +231,4 @@ def callback(call):
             menu(chat_id=chat_id)
 
 
-bot.polling(none_stop=True)
+bot.infinity_polling(timeout=50, long_polling_timeout = 25)

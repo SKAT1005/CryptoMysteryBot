@@ -22,6 +22,10 @@ class User(models.Model):
     is_admin = models.BooleanField(default=False, verbose_name='Является ли пользователь админом')
 
 
+    def __str__(self):
+        return self.chat_id
+
+
 class Wallet(models.Model):
     rub = models.DecimalField(default=0, max_digits=1000, decimal_places=2, verbose_name='баланс RUB')
     usdt = models.DecimalField(default=0, max_digits=1000, decimal_places=2, verbose_name='баланс USDT')
@@ -47,7 +51,11 @@ class Wallet(models.Model):
                f'Суммарный баланс USDT: {round(float(total_usd_balance), 2)}'
 
     def get_balance(self, cripto):
-        return getattr(self, cripto.lower())
+        if cripto in ['RUB', 'USDT']:
+            balance = format(getattr(self, cripto.lower()).quantize(decimal.Decimal("1.00")).normalize(), 'f')
+        else:
+            balance = format(getattr(self, cripto.lower()).quantize(decimal.Decimal("1.00000000")).normalize(), 'f')
+        return balance
 
     def wallet_balance(self):
         return f'RUB: {float(self.rub)}\n' \
@@ -63,6 +71,13 @@ class Wallet(models.Model):
         if getattr(self, cripto.lower()) >= value:
             return True
         return False
+
+    def balance(self, cripto):
+        if cripto in ['RUB', 'USDT']:
+            balance = format(getattr(self, cripto.lower()).quantize(decimal.Decimal("1.00")).normalize(), 'f')
+        else:
+            balance = format(getattr(self, cripto.lower()).quantize(decimal.Decimal("1.00000000")).normalize(), 'f')
+        return balance
 
     def change(self, from_cripto, from_value, to_cripto, to_value):
         first_balance = getattr(self, from_cripto.lower())
@@ -99,7 +114,8 @@ class History(models.Model):
     send_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту отправляете')
     get_value = models.DecimalField(default=0, max_digits=1000, decimal_places=8, blank=True, null=True, verbose_name='Сколько валюты получаете')
     get_cripto = models.CharField(max_length=128, blank=True, null=True, verbose_name='Какую криптовалюту получаете')
-    course = models.FloatField(default=0, null=True, verbose_name='Курс операции')
+    course_send = models.FloatField(default=0, null=True, verbose_name='Курс отправленой валюты к USDT')
+    course_get = models.FloatField(default=0, null=True, verbose_name='Курс получаемой волюты к USDT')
     address = models.CharField(max_length=256, blank=True, null=True, verbose_name='Адрес операции')
     date = models.DateField(auto_now_add=True, null=True, verbose_name='Дата операции')
 

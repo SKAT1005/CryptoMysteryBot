@@ -28,7 +28,7 @@ def delete_for_admins(id, msg_text, type):
                 pass
         admin_messages[0].delete()
 
-def get_course(cripto, value='RUB'):
+def get_course(cripto, value='USDT'):
     url = f'https://min-api.cryptocompare.com/data/price?fsym={cripto}&tsyms={value}'
     response = requests.get(url).json()
     return response[value]
@@ -40,7 +40,7 @@ def history(type, send_value, send_cripto, get_value, get_cripto, user):
         send_cripto=send_cripto,
         get_value=get_value,
         get_cripto=get_cripto,
-        course=get_course(send_cripto)
+        course_get=get_course(send_cripto)
     )
 
 
@@ -50,7 +50,7 @@ def approve_replenishment(data, msg_text):
     user = User.objects.get(chat_id=data[3])
     #delete_for_admins(id=id, msg_text=msg_text, type='❌')
     user.wallet.buy(cripto=cripto, value=user.send_cripto)
-    number_str = get_number(user.send_cripto)
+    number_str = user.send_cripto
     bot.send_message(chat_id=user.chat_id, text=f'Ваша заявка на пополнение {number_str} {cripto} одобрена! Оставьте отзыв и получите 1 USDT', reply_markup=buttons.review())
     history(type='Пополнения', send_value=user.send_cripto, send_cripto=cripto, get_cripto=cripto, get_value=user.send_cripto, user=user)
     user.send_cripto = 0
@@ -81,6 +81,7 @@ def send_to_admin(chat_id, data, user):
     admins = User.objects.filter(is_admin=True)
     cripto = data[1]
     value = str(user.send_cripto).replace('.', ',')
+    bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
     markup = admins_buttons(chat_id=chat_id, cripto=cripto, id=admin_message.id)
     text = 'ПОПОЛНЕНИЕ СЧЕТА:\n' \
            f'Пользователь: {user.chat_id}\n' \

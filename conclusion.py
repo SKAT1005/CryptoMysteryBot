@@ -27,7 +27,10 @@ def delite_for_admins(id, msg_text, type):
             except Exception:
                 pass
         admin_messages[0].delete()
-
+def get_course(cripto, value='USDT'):
+    url = f'https://min-api.cryptocompare.com/data/price?fsym={cripto}&tsyms={value}'
+    response = requests.get(url).json()
+    return response[value]
 def history(type, send_value, send_cripto, user_id, wallet):
     user = User.objects.get(chat_id=user_id)
     History.objects.create(
@@ -36,6 +39,7 @@ def history(type, send_value, send_cripto, user_id, wallet):
         send_value=send_value,
         send_cripto=send_cripto,
         address=wallet,
+        course_send=get_course(send_cripto)
     )
 def approve_conclusion(data, msg_text):
     cripto = data[0]
@@ -67,11 +71,15 @@ def send_to_admin(chat_id, data, user):
     wallet = data[2]
     admin_message = AdminMessage.objects.create(chat_id=chat_id)
     admins = User.objects.filter(is_admin=True)
+    net = ''
+    if cripto in ['USDT', 'RUB']:
+        net = f'Банк/Сеть: {data[-1]}\n'
     markup = buttons.admins_button(cripto=cripto, user_id=chat_id, id=admin_message.id, wallet=wallet)
-    number_str = get_number(value)
+    number_str = value
     text = 'ВЫВОД СРЕДСТВ:\n' \
            f'Пользователь: {user.chat_id}\n' \
            f'Выводит: *{number_str}* {cripto}\n' \
+           f'{net}' \
            f'Номер кошелек\карта: `{wallet}`\n\n' \
            f'БАЛАННС ПОЛЬЗОВАТЕЛЯ:\n' + user.wallet.wallet_balance()
     messages_id = ''
@@ -84,8 +92,7 @@ def send_to_admin(chat_id, data, user):
     admin_message.messages_id = messages_id[:-1]
     admin_message.save()
 
-
-def validate_user_wallet_input(message, chat_id, cripto, value, user, message_id):
+def choose_bank_or_net(message, chat_id, cripto, value, user, wallet, message_id):
     try:
         bot.delete_message(chat_id=chat_id, message_id=message.id)
         bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -94,9 +101,28 @@ def validate_user_wallet_input(message, chat_id, cripto, value, user, message_id
     number_str = get_number(value)
     text = 'ИНФОРМАЦИЯ О ВЫВОДЕ:\n' \
            f'Вы выводите: {number_str} {cripto}\n' \
-           f'Номер кошелька\карты для вывода: {message.text}'
+           f'Номер кошелька\карты для вывода: {wallet}\n' \
+           f'Банк\Сеть: {message.text}\n\n' \
+           f'===================================\n' \
+           'Баланс вашего кошелька:\n\n' + user.wallet.wallet_balance()
     bot.send_message(chat_id=chat_id, text=text,
-                     reply_markup=buttons.conclusion_button(cripto=cripto, value=value, wallet=message.text))
+                     reply_markup=buttons.conclusion_button(cripto=cripto, value=value, wallet=wallet, net=message.text))
+def validate_user_wallet_input(message, chat_id, cripto, value, user, message_id):
+    try:
+        bot.delete_message(chat_id=chat_id, message_id=message.id)
+        bot.delete_message(chat_id=chat_id, message_id=message_id)
+    except Exception:
+        pass
+    number_str = get_number(value)
+    if cripto in ['USDT', "RUB"]:
+        msg = bot.send_message(chat_id, text='Выберите сеть/банк, на который вы хортите вывести средства', reply_markup=buttons.choose_bank_or_net(cripto))
+        bot.register_next_step_handler(msg, choose_bank_or_net, chat_id, cripto, value, user, message.text, msg.id)
+    else:
+        text = 'ИНФОРМАЦИЯ О ВЫВОДЕ:\n' \
+               f'Вы выводите: {number_str} {cripto}\n' \
+               f'Номер кошелька\карты для вывода: {message.text}'
+        bot.send_message(chat_id=chat_id, text=text,
+                         reply_markup=buttons.conclusion_button(cripto=cripto, value=value, wallet=message.text))
 
 
 def user_wallet_input(chat_id, user, cripto, value, error=''):
@@ -117,12 +143,13 @@ def validate_cripto_input(message, chat_id, message_id, cripto, user):
     try:
         value = decimal.Decimal(message.text.replace(',', '.'))
         if value <= 0:
+            error = 'Введите число, которое больше 0\n\n'
             raise Exception
-        if user.wallet.check_balance(cripto, value):
-            error = 'На вашем балансе недостаточно средств'
+        if not user.wallet.check_balance(cripto, value):
+            error = 'На вашем балансе недостаточно средств\n\n'
+            raise Exception
     except Exception:
-        error = 'Введите число, которое больше 0'
-        input_cripto_text(chat_id=chat_id, cripto=cripto, error=error)
+        input_cripto_text(chat_id=chat_id, cripto=cripto, user=user, error=error)
     else:
         if user.wallet.get_balance(cripto=cripto):
             user.send_cripto = value
@@ -132,9 +159,12 @@ def validate_cripto_input(message, chat_id, message_id, cripto, user):
 
 def input_cripto_text(chat_id, cripto, user, error=''):
     if error:
-        text = error
+        text = error + f'===================================\n' \
+               f'Баланс вашего кошелька: {user.wallet.balance(cripto)} {cripto}'
     else:
-        text = 'Введите сколько валюты вы хотете вывести'
+        text = 'Введите сколько валюты вы хотете вывести\n\n' \
+               f'===================================\n' \
+               f'Баланс вашего кошелька: {user.wallet.balance(cripto)} {cripto}'
     msg = bot.send_message(chat_id=chat_id, text=text, reply_markup=buttons.conclusion(cripto))
     bot.register_next_step_handler(msg, validate_cripto_input, chat_id, msg.id, cripto, user)
 
@@ -147,9 +177,12 @@ def callback(data, user, chat_id, msg_text=None):
         input_cripto_text(chat_id=chat_id, cripto=data[0], user=user)
     elif len(data) == 2:
         value = user.wallet.get_balance(data[0])
-        user.send_cripto = value
-        user.save()
-        user_wallet_input(chat_id=chat_id, user=user, cripto=data[0], value=value)
+        if int(value) <= 0:
+            bot.send_message(chat_id=chat_id, text='Вы не можете вывести эту валюту т.к ваш баланс слишком маленький', reply_markup=buttons.go_to_wallet())
+        else:
+            user.send_cripto = value
+            user.save()
+            user_wallet_input(chat_id=chat_id, user=user, cripto=data[0], value=value)
     elif data[0] == 'approve':
         approve_conclusion(data=data[1:], msg_text=msg_text)
     elif data[0] == 'cansel':
