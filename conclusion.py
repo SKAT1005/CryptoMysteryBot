@@ -124,7 +124,7 @@ def validate_cripto_input(message, chat_id, message_id, cripto, user):
         error = 'Введите число, которое больше 0'
         input_cripto_text(chat_id=chat_id, cripto=cripto, error=error)
     else:
-        if user.wallet.get_balance(cripto=cripto, value=value):
+        if user.wallet.get_balance(cripto=cripto):
             user.send_cripto = value
             user.save()
             user_wallet_input(chat_id=chat_id, user=user, cripto=cripto, value=value)
