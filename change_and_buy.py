@@ -89,6 +89,7 @@ def send_message_to_admin(data, chat_id):
         text = "ВНУТРЕННИЙ ОБМЕН\n\n" + \
                f"Отдает: {send_value} - {send_cur} \n\n" + \
                f"Получает: {get_value} - {get_cur}\n\n" + user.wallet.wallet_balance()
+        bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery в ближайшее время произведет обмен ваших средств💸')
     else:
         bot.send_message(chat_id=chat_id, text='🧿Crypto Mystery пополнит ваш баланс при зачислении средств💸')
         text = 'ВНЕШНИЙ ОБМЕН\n\n' \
