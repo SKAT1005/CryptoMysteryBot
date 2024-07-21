@@ -27,20 +27,20 @@ for i in users:
     for f in wallets:
         if int(f['wallet']) == int(wallet_id):
             wallet = Wallet.objects.create(
-                rub=decimal.Decimal(f['rub']),
-                usdt=decimal.Decimal(f['usdt']),
-                btc=decimal.Decimal(f['btc']),
-                eth=decimal.Decimal(f['eth']),
-                trx=decimal.Decimal(f['trx']),
-                ton=decimal.Decimal(f['ton']),
-                xmr=decimal.Decimal(f['xmr']),
-            )
+                    rub=decimal.Decimal(f['rub']),
+                    usdt=decimal.Decimal(f['usdt']),
+                    btc=decimal.Decimal(f['btc']),
+                    eth=decimal.Decimal(f['eth']),
+                    trx=decimal.Decimal(f['trx']),
+                    ton=decimal.Decimal(f['ton']),
+                    xmr=decimal.Decimal(f['xmr']),
+                )
             break
     User.objects.create(
-        chat_id=chat_id,
-        referal_id=referral_id,
-        wallet=wallet
-    )
+            chat_id=chat_id,
+            referal_id=referral_id,
+            wallet=wallet
+        )
 
 for i in historys:
     type = i['type']

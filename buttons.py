@@ -129,7 +129,7 @@ def menu_buttons(chat_id):
     newspaper = types.InlineKeyboardButton(text='📰 Газета Crypto Mystery', url='https://t.me/crypto_mystery_news')
     analytics = types.InlineKeyboardButton(text='Аналитика портфеля', callback_data='analytics')
     change_and_buy = types.InlineKeyboardButton(text='🔄 Начать новый обмен', callback_data='change|menu')
-    history = types.InlineKeyboardButton(text='История операций', callback_data='history')
+    history = types.InlineKeyboardButton(text='📜 История операций', callback_data='history')
     markup.add(change_and_buy)
     markup.add(my_wallet)
     markup.add(referal)
