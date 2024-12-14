@@ -78,7 +78,7 @@ def approve(user_id, review_id, msg_id):
            f"🏆: {rate}\n" \
            "➖➖➖➖➖➖➖➖➖➖➖➖\n" \
            f"{review.text}"
-    bot.send_message(chat_id='-1001981218326', text=text.replace('.', '\.'), parse_mode='MarkdownV2')
+    bot.send_message(chat_id='-1002270677091', text=text.replace('.', '\.'), parse_mode='MarkdownV2')
 
 
 def callback(data, user, chat_id):

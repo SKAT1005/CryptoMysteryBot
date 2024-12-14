@@ -1,6 +1,6 @@
 import telebot
 
-TOKEN = '7195501588:AAEVSKvVeH9JNg9FXiZ8iph1ryAdeSWX4p8'
+TOKEN = '7195501588:AAFNEF48b0wNeIqUTVxdq5KZ3K8Ur4e9rz0'
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -56,3 +56,4 @@ entety = [
             'type': 'mention'
         }
     ]
+

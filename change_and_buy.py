@@ -124,7 +124,7 @@ def admin_approve(data):
         second_value = user.get_cripto
         user.wallet.change(data[2], first_value, data[3], second_value)
     else:
-        type = 'Пополнение'
+        type = 'Пополнения'
         value = user.get_cripto
         user.wallet.buy(data[3], value)
     try:
