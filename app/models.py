@@ -117,7 +117,7 @@ class History(models.Model):
     course_send = models.FloatField(default=0, null=True, verbose_name='Курс отправленой валюты к USDT')
     course_get = models.FloatField(default=0, null=True, verbose_name='Курс получаемой волюты к USDT')
     address = models.CharField(max_length=256, blank=True, null=True, verbose_name='Адрес операции')
-    date = models.DateField(auto_now_add=True, null=True, verbose_name='Дата операции')
+    date = models.DateField(null=True, verbose_name='Дата операции')
 
 
 
